@@ -59,3 +59,24 @@ def test_add_scanned_medicines_to_cabinet_from_the_confirm_screen():
     click(at, "Add 5 to my cabinet")
     assert len(at.session_state.cabinet["meds"]) == 7
     assert [b for b in at.button if "All saved" in b.label][0].disabled
+
+
+def test_clear_cabinet_asks_first_and_can_be_cancelled():
+    at = start()
+    click(at, "Cabinet")
+    click(at, "Clear cabinet")
+    assert len(at.session_state.cabinet["meds"]) == 2             # nothing removed yet
+    assert any("Yes, clear it" in b.label for b in at.button)
+    click(at, "Cancel")
+    assert len(at.session_state.cabinet["meds"]) == 2
+    assert any("Clear cabinet" in b.label for b in at.button)
+
+
+def test_clear_cabinet_empties_it_and_queues_the_browser_write():
+    at = start()
+    click(at, "Cabinet")
+    click(at, "Clear cabinet")
+    click(at, "Yes, clear it")
+    assert at.session_state.cabinet == {"meds": [], "taken": {}}
+    assert at.session_state.cab_write["data"] == {"meds": [], "taken": {}}   # so a reload stays empty
+    assert not any("Clear cabinet" in b.label for b in at.button)             # nothing left to clear

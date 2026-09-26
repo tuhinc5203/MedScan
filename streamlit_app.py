@@ -391,6 +391,21 @@ def _save_times(med, key):
     st.toast("Times saved.")
 
 
+def _ask_clear():
+    ss.confirm_clear = True
+
+
+def _cancel_clear():
+    ss.confirm_clear = False
+
+
+def _clear_cabinet():
+    ss.cabinet = cabinet.empty()
+    ss.confirm_clear = False
+    cab_save()  # writes the empty cabinet to this browser too, so a reload stays empty
+    st.toast("Cabinet cleared.")
+
+
 def _add_med():
     label = (ss.get("cab_name") or "").strip()
     if not label:
@@ -478,6 +493,20 @@ def cabinet_screen():
                     'closed. Open the file, or tap it after downloading, to add it.</div>',
                     unsafe_allow_html=True)
 
+    if cab["meds"]:
+        st.markdown('<div class="eyebrow">Manage</div>', unsafe_allow_html=True)
+        if ss.get("confirm_clear"):
+            st.markdown(f'<div class="card flag"><b>Remove all {len(cab["meds"])} '
+                        f'medicine{"s" if len(cab["meds"]) != 1 else ""} from your cabinet?</b>'
+                        '<div class="flag-text">This can\'t be undone. Your dose times and today\'s '
+                        'ticks are cleared too.</div></div>', unsafe_allow_html=True)
+            c1, c2 = st.columns(2)
+            c1.button("Yes, clear it", key="clear_yes", use_container_width=True,
+                      type="primary", on_click=_clear_cabinet)
+            c2.button("Cancel", key="clear_no", use_container_width=True, on_click=_cancel_clear)
+        else:
+            st.button("Clear cabinet", icon=":material/delete:", key="clear_ask",
+                      use_container_width=True, on_click=_ask_clear)
     st.markdown('<div class="fine">MedScan is a hackathon demo. Reminders help you remember; they '
                 'are not a substitute for your prescriber\'s directions.</div>',
                 unsafe_allow_html=True)
