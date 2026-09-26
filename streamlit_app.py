@@ -211,7 +211,8 @@ def confirm():
     cab_meds = ss.cabinet["meds"]
     with_cab = False
     if cab_meds:
-        with_cab = st.checkbox(f"Also check against my cabinet ({len(cab_meds)} saved)", value=True)
+        with_cab = st.checkbox(f"Also include my cabinet in this check ({len(cab_meds)} saved)",
+                               value=False, key="with_cab")
     pending = [(m["raw"], resolved(m["raw"], m["conf"])["names"]) for m in named
                if not cabinet.contains(ss.cabinet, m["raw"], resolved(m["raw"], m["conf"])["names"])]
     if named:
@@ -227,6 +228,7 @@ def confirm():
             labels += [c["label"] for c in cab_meds if frozenset(c["ingredients"]) not in have]
         with st.spinner("Checking FDA labels…"):
             ss.result = pipeline.analyze(labels)
+        ss.scanned = [m["raw"] for m in named]  # what "Save to my cabinet" will offer to save
         ss.unreadable = len(meds) - len(named)
         go("results", back="confirm")
 
@@ -249,7 +251,9 @@ def summary_text(r):
 
 
 def save_scanned():
-    save_to_cabinet([(it["label"], it["names"]) for it in ss.result["items"]])
+    scanned = set(ss.get("scanned", []))
+    save_to_cabinet([(it["label"], it["names"]) for it in ss.result["items"]
+                     if it["label"] in scanned])
 
 
 def results():
