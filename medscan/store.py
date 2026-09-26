@@ -2,7 +2,7 @@
 
 Every lookup is cached under data/cache/, so a demo replays offline and the public
 APIs (openFDA allows ~1000 unauthenticated calls/day per IP) are hit at most once
-per drug. Set MEDLENS_OFFLINE=1 to forbid network access and use the cache only.
+per drug. Set MEDSCAN_OFFLINE=1 to forbid network access and use the cache only.
 """
 import json
 import os
@@ -41,7 +41,7 @@ class Cache:
 
 
 def offline() -> bool:
-    return os.environ.get("MEDLENS_OFFLINE") == "1"
+    return os.environ.get("MEDSCAN_OFFLINE") == "1"
 
 
 def get_json(url: str, params: dict | None = None, retries: int = 2) -> dict | None:

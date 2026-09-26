@@ -3,7 +3,7 @@
     .venv/bin/python scripts/build_cache.py
 
 Run once (needs network). Afterwards the app answers these drugs with no API calls,
-and MEDLENS_OFFLINE=1 works for them. Any other drug is fetched live on first use.
+and MEDSCAN_OFFLINE=1 works for them. Any other drug is fetched live on first use.
 """
 import sys
 import time
@@ -11,8 +11,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from medlens import labels, rx  # noqa: E402
-from medlens.store import SourceUnavailable  # noqa: E402
+from medscan import labels, rx  # noqa: E402
+from medscan.store import SourceUnavailable  # noqa: E402
 
 COMMON = """
 simvastatin atorvastatin rosuvastatin pravastatin lovastatin clarithromycin erythromycin azithromycin

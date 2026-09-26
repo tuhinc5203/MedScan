@@ -1,9 +1,9 @@
 """Read medicine bottle labels from a photo with a free vision model.
 
-Backends (MEDLENS_VISION, default "auto"):
+Backends (MEDSCAN_VISION, default "auto"):
   gemini  Google Gemini free tier. Needs GEMINI_API_KEY (free, no card:
-          https://aistudio.google.com/apikey). Model: MEDLENS_GEMINI_MODEL.
-  ollama  Local model, no key, nothing leaves the machine. MEDLENS_OLLAMA_MODEL
+          https://aistudio.google.com/apikey). Model: MEDSCAN_GEMINI_MODEL.
+  ollama  Local model, no key, nothing leaves the machine. MEDSCAN_OLLAMA_MODEL
           (default qwen2.5vl:7b).
   demo    A fixed example list, for trying the app without a model.
 
@@ -88,7 +88,7 @@ def prepare(image: bytes, max_side: int = 1800) -> bytes:
 
 def read_bottles(image: bytes, backend: str = "auto") -> dict:
     if backend == "auto":
-        backend = os.environ.get("MEDLENS_VISION", "auto")
+        backend = os.environ.get("MEDSCAN_VISION", "auto")
     if backend == "auto":
         found = available()
         if not found:
@@ -108,7 +108,7 @@ def read_bottles(image: bytes, backend: str = "auto") -> dict:
 def _gemini(jpeg: bytes) -> str:
     if not _key():
         raise VisionError("GEMINI_API_KEY is not set.")
-    model = os.environ.get("MEDLENS_GEMINI_MODEL", "gemini-2.5-flash")
+    model = os.environ.get("MEDSCAN_GEMINI_MODEL", "gemini-2.5-flash")
     r = requests.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         headers={"x-goog-api-key": _key()}, timeout=60,
@@ -127,7 +127,7 @@ def _gemini(jpeg: bytes) -> str:
 
 
 def _ollama(jpeg: bytes) -> str:
-    model = os.environ.get("MEDLENS_OLLAMA_MODEL", "qwen2.5vl:7b")
+    model = os.environ.get("MEDSCAN_OLLAMA_MODEL", "qwen2.5vl:7b")
     try:
         r = requests.post("http://localhost:11434/api/chat", timeout=180, json={
             "model": model, "stream": False, "format": "json", "options": {"temperature": 0},

@@ -87,7 +87,7 @@ def simplify(quote: str, a: str, b: str) -> str | None:
     try:
         r = requests.post(
             "https://generativelanguage.googleapis.com/v1beta/models/"
-            f"{os.environ.get('MEDLENS_GEMINI_MODEL', 'gemini-2.5-flash')}:generateContent",
+            f"{os.environ.get('MEDSCAN_GEMINI_MODEL', 'gemini-2.5-flash')}:generateContent",
             headers={"x-goog-api-key": key}, timeout=30,
             json={"contents": [{"parts": [{"text": prompt}]}],
                   "generationConfig": {"temperature": 0, "maxOutputTokens": 200}})

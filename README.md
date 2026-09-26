@@ -1,6 +1,6 @@
-# MedLens
+# MedScan
 
-Take one photo of your pill bottles. MedLens reads the labels, lets you confirm the
+Take one photo of your pill bottles. MedScan reads the labels, lets you confirm the
 list, and flags combinations that shouldn't be taken together. Every flag quotes the
 FDA drug label it came from.
 
@@ -8,21 +8,21 @@ FDA drug label it came from.
 
 ## How it works
 
-1. **Read** (`medlens/vision.py`): a free vision model (Gemini free tier, or Ollama
+1. **Read** (`medscan/vision.py`): a free vision model (Gemini free tier, or Ollama
    locally) transcribes each bottle label. Unreadable fields come back `null`, never guessed.
 2. **Confirm**: you fix or remove anything wrong before any advice is produced.
    Low-confidence readings are flagged.
-3. **Resolve** (`medlens/rx.py`): [RxNav](https://rxnav.nlm.nih.gov) turns label text
+3. **Resolve** (`medscan/rx.py`): [RxNav](https://rxnav.nlm.nih.gov) turns label text
    ("Metoprolol Succ ER 25mg", "Mobic") into active ingredients and drug classes. A match
    must resemble a word actually printed on the label, otherwise it is "not recognised".
-4. **Check** (`medlens/check.py`): for every pair, look for the other drug (by name, brand
+4. **Check** (`medscan/check.py`): for every pair, look for the other drug (by name, brand
    or class, e.g. "NSAIDs", "SSRIs") in each drug's
    [openFDA](https://open.fda.gov/apis/drug/label/) label interaction text. The matching
    sentence is kept as evidence and the severity is read from its wording ("contraindicated"
    / "avoid" → high, "monitor" / "may increase" → moderate). Negations ("no dose adjustment
    needed") are ignored. Two products with the same active ingredient are flagged as possible
    double dosing.
-5. **Explain** (`medlens/advice.py`): fixed, plain wording. It never tells anyone to stop a
+5. **Explain** (`medscan/advice.py`): fixed, plain wording. It never tells anyone to stop a
    medicine. A "spacing doses apart" note appears only when the label itself says so
    (for example levothyroxine and calcium), and says spacing *won't* help when the label
    says the effect happens even 12 hours apart (clopidogrel and omeprazole).

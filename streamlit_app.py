@@ -1,13 +1,13 @@
-"""MedLens: Streamlit app.   .venv/bin/streamlit run streamlit_app.py"""
+"""MedScan: Streamlit app.   .venv/bin/streamlit run streamlit_app.py"""
 import html
 import itertools
 import os
 
 import streamlit as st
 
-from medlens import advice, pipeline, vision
+from medscan import advice, pipeline, vision
 
-st.set_page_config(page_title="MedLens", page_icon="🔍", layout="centered")
+st.set_page_config(page_title="MedScan", page_icon="🔍", layout="centered")
 try:  # Streamlit Cloud keeps the free vision key in Secrets
     if "GEMINI_API_KEY" in st.secrets:
         os.environ.setdefault("GEMINI_API_KEY", st.secrets["GEMINI_API_KEY"])
@@ -86,7 +86,7 @@ def resolved(raw, conf):
 
 # ───────────────────────────── 1 · Scan ─────────────────────────────
 def scan():
-    st.markdown('<div class="brand">🔍 MedLens</div>', unsafe_allow_html=True)
+    st.markdown('<div class="brand">🔍 MedScan</div>', unsafe_allow_html=True)
     st.markdown('<div class="hero">Check your medicines in one photo</div>', unsafe_allow_html=True)
     st.markdown('<p class="muted">Take a picture of your pill bottles. We\'ll list them and '
                 'flag any that shouldn\'t be taken together.</p>', unsafe_allow_html=True)
@@ -194,7 +194,7 @@ def confirm():
 
 # ───────────────────────────── 3 · Results ─────────────────────────────
 def summary_text(r):
-    lines = ["MedLens summary (hackathon demo; information only, not medical advice)", "",
+    lines = ["MedScan summary (hackathon demo; information only, not medical advice)", "",
              "Medicines listed: " + ", ".join(i["label"] for i in r["items"]), ""]
     shown = [c for c in r["cards"] if not c["minor"]]
     for c in shown:
@@ -264,7 +264,7 @@ def results():
                     + (f"<br>• {ss.unreadable} unreadable label(s)" if ss.get("unreadable") else "")
                     + "</div>", unsafe_allow_html=True)
 
-    st.download_button("Share with my pharmacist", summary_text(r), "medlens_summary.txt",
+    st.download_button("Share with my pharmacist", summary_text(r), "medscan_summary.txt",
                        type="primary", use_container_width=True)
     if st.button("Scan again", use_container_width=True):
         ss.meds = []

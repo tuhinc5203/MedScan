@@ -3,11 +3,11 @@ RxNav and openFDA on the day of the build. Run: .venv/bin/python -m pytest -q"""
 import os
 import re
 
-os.environ["MEDLENS_OFFLINE"] = "1"
+os.environ["MEDSCAN_OFFLINE"] = "1"
 
 import pytest
 
-from medlens import advice, check, pipeline, rx, vision
+from medscan import advice, check, pipeline, rx, vision
 
 
 def items(*names):
