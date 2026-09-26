@@ -5,6 +5,8 @@ Backends (MEDSCAN_VISION, default "auto"):
           https://aistudio.google.com/apikey). Model: MEDSCAN_GEMINI_MODEL.
   ollama  Local model, no key, nothing leaves the machine. MEDSCAN_OLLAMA_MODEL
           (default qwen2.5vl:7b).
+  ocr     No key, no model download: an on-device OCR engine reads the text and RxNav
+          decides which lines are drug names. Works anywhere, including Streamlit Cloud.
   demo    A fixed example list, for trying the app without a model.
 
 Model output is untrusted: parse() coerces it and nulls anything malformed.
@@ -62,6 +64,11 @@ def _key() -> str | None:
     return os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
 
 
+def _ocr_installed() -> bool:
+    import importlib.util
+    return importlib.util.find_spec("rapidocr_onnxruntime") is not None
+
+
 def available() -> list[str]:
     out = ["gemini"] if _key() else []
     try:
@@ -69,6 +76,8 @@ def available() -> list[str]:
         out.append("ollama")
     except requests.RequestException:
         pass
+    if _ocr_installed():
+        out.append("ocr")
     return out
 
 
@@ -92,8 +101,8 @@ def read_bottles(image: bytes, backend: str = "auto") -> dict:
     if backend == "auto":
         found = available()
         if not found:
-            raise VisionError("No vision model is set up. Add a free GEMINI_API_KEY, "
-                              "or run Ollama locally.")
+            raise VisionError("No photo reader is available. Add a free GEMINI_API_KEY, "
+                              "or install rapidocr-onnxruntime.")
         backend = found[0]
     if backend == "demo":
         return DEMO
@@ -102,6 +111,8 @@ def read_bottles(image: bytes, backend: str = "auto") -> dict:
         return parse(_gemini(jpeg))
     if backend == "ollama":
         return parse(_ollama(jpeg))
+    if backend == "ocr":
+        return _ocr(jpeg)
     raise VisionError(f"Unknown vision backend: {backend}")
 
 
@@ -137,6 +148,60 @@ def _ollama(jpeg: bytes) -> str:
         return r.json()["message"]["content"]
     except (requests.RequestException, KeyError) as e:
         raise VisionError(f"Ollama failed: {e}")
+
+
+_engine = None
+_SKIP = re.compile(r"refill|qty|quantity|pharmacy|patient|rx\s*#|\bdr\b|\bdr\.|warning|"
+                   r"testing|demo|mock|discard|expires?|\bnpi\b", re.I)
+
+
+def _resolve_printed(spaced: str) -> dict | None:
+    """Resolve an OCR line, but only if the printed text resembles an INGREDIENT name.
+    Free text is being fed in, so a brand-only or class-only match ('(NSAID)',
+    'every morning') must not become a medicine."""
+    from . import rx
+    rec = rx.resolve(spaced)
+    if rec["status"] != "matched":
+        return None
+    names = [i["name"] for i in rec["ingredients"]]
+    return rec if rx._resembles(rx.clean(spaced), names, names) >= 0.85 else None
+
+
+def _ocr(jpeg: bytes) -> dict:
+    """OCR every text line, keep the lines RxNav can resolve to a real drug name.
+    rx.resolve() refuses to guess, so ordinary label text (addresses, directions,
+    'Refills: 3') is dropped and never shown as a medicine."""
+    global _engine
+    from . import rx
+    from .store import SourceUnavailable
+    try:
+        from rapidocr_onnxruntime import RapidOCR
+        _engine = _engine or RapidOCR()
+        lines, _ = _engine(jpeg)
+    except Exception as e:
+        raise VisionError(f"On-device OCR failed: {e}")
+    bottles, seen = [], set()
+    for _box, text, score in lines or []:
+        # OCR glues tokens: 'SIMVASTATIN40MG' -> 'SIMVASTATIN 40 MG'
+        spaced = re.sub(r"(?<=[A-Za-z])(?=\d)|(?<=\d)(?=[A-Za-z])", " ", text).strip()
+        if _SKIP.search(spaced) or not re.search(r"[A-Za-z]{5,}", spaced):
+            continue
+        try:
+            rec = _resolve_printed(spaced)
+        except SourceUnavailable as e:
+            raise VisionError(f"Drug-name service unreachable: {e}")
+        if rec is None:
+            continue
+        key = tuple(sorted(i["name"] for i in rec["ingredients"]))
+        if key in seen:
+            continue
+        seen.add(key)
+        m = re.search(r"(\d+(?:\.\d+)?)\s*(mg|mcg|g|ml)\b", spaced, re.I)
+        conf = float(score) * (1.0 if (rec["score"] or 0) >= 0.9 else 0.8)
+        bottles.append(dict(drug_name=spaced, strength=float(m.group(1)) if m else None,
+                            unit={"ml": "mL"}.get(m.group(2).lower(), m.group(2).lower()) if m else None,
+                            directions=None, confidence=round(min(conf, 0.99), 2)))
+    return {"bottles": bottles}
 
 
 def parse(text: str) -> dict:

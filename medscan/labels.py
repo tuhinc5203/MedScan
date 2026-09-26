@@ -62,3 +62,8 @@ def _fetch(name: str) -> dict:
                 "set_id": r.get("set_id", ""), "effective": r.get("effective_time", ""),
                 "source": f"FDA label ({name}), openFDA set_id {r.get('set_id', '')[:8]}"}
     return base
+
+
+def known() -> list[str]:
+    """Ingredient names already in the cache (used to find names inside OCR-glued text)."""
+    return [k for k, v in _cache.data.items() if v.get("text")]

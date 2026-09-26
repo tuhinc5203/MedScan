@@ -117,6 +117,10 @@ def scan():
             except vision.VisionError as e:
                 ss.error = f"Couldn't read that photo: {e}"
                 st.rerun()
+        if not payload["bottles"]:
+            ss.error = ("We couldn't find any medicine names in that photo. Try a closer, "
+                        "well-lit photo of the label, or type your list.")
+            st.rerun()
         load(payload)
 
     st.markdown('<div class="card"><b>For the best scan</b><br>✓ Turn labels to face the camera'
@@ -129,10 +133,11 @@ def scan():
         ss.meds = []
         go("confirm")
     with st.expander("Vision settings"):
-        opts = ["auto", "gemini", "ollama", "demo"]
+        opts = ["auto", "gemini", "ollama", "ocr", "demo"]
         ss.backend = st.selectbox("Backend", opts, index=opts.index(ss.get("backend", "auto")))
-        st.caption(f"Available now: {', '.join(vision.available()) or 'none'}. Free key: "
-                   "aistudio.google.com/apikey → GEMINI_API_KEY.")
+        st.caption(f"Available now: {', '.join(vision.available()) or 'none'}. "
+                   "**ocr** needs no key and reads text on the server; **gemini** reads curved "
+                   "or glossy labels better (free key: aistudio.google.com/apikey).")
     st.markdown('<div class="small">For information only. Always check with your pharmacist '
                 'or doctor before changing how you take a medicine.</div>', unsafe_allow_html=True)
 

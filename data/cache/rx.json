@@ -1,4 +1,14 @@
 {
+ "a rivera": {
+  "ingredients": [
+   {
+    "name": "carprofen",
+    "rxcui": "20343"
+   }
+  ],
+  "score": 0.833,
+  "status": "matched"
+ },
  "acetaminophen": {
   "ingredients": [
    {
@@ -245,6 +255,16 @@
   "status": "matched"
  },
  "clarithromycin": {
+  "ingredients": [
+   {
+    "name": "clarithromycin",
+    "rxcui": "21212"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "clarithromycin oomg": {
   "ingredients": [
    {
     "name": "clarithromycin",
@@ -579,6 +599,11 @@
   "score": 1.0,
   "status": "matched"
  },
+ "coatedtablets": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
+ },
  "codeine": {
   "ingredients": [
    {
@@ -628,6 +653,16 @@
   ],
   "score": 1.0,
   "status": "matched"
+ },
+ "dietary supplement": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
+ },
+ "dietarysupplement": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
  },
  "digoxin": {
   "ingredients": [
@@ -1028,6 +1063,11 @@
   "score": 1.0,
   "status": "matched"
  },
+ "mg": {
+  "ingredients": [],
+  "score": 0.0,
+  "status": "no_match"
+ },
  "mobic": {
   "ingredients": [
    {
@@ -1043,6 +1083,16 @@
    {
     "name": "montelukast",
     "rxcui": "88249"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "morning": {
+  "ingredients": [
+   {
+    "name": "levonorgestrel",
+    "rxcui": "6373"
    }
   ],
   "score": 1.0,
@@ -1068,6 +1118,16 @@
   "score": 1.0,
   "status": "matched"
  },
+ "nsaid": {
+  "ingredients": [
+   {
+    "name": "flurbiprofen",
+    "rxcui": "4502"
+   }
+  ],
+  "score": 0.909,
+  "status": "matched"
+ },
  "olanzapine": {
   "ingredients": [
    {
@@ -1088,6 +1148,21 @@
   "score": 1.0,
   "status": "matched"
  },
+ "onanemptystomach": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
+ },
+ "oncedailyatbedtime": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
+ },
+ "oncedailyorasdirected": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
+ },
  "ondansetron": {
   "ingredients": [
    {
@@ -1107,6 +1182,11 @@
   ],
   "score": 1.0,
   "status": "matched"
+ },
+ "pain reliever fever reducer": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
  },
  "pantoprazole": {
   "ingredients": [
@@ -1197,6 +1277,11 @@
   ],
   "score": 1.0,
   "status": "matched"
+ },
+ "refills:": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
  },
  "rifampin": {
   "ingredients": [
@@ -1308,6 +1393,16 @@
   "score": 1.0,
   "status": "matched"
  },
+ "tabletbymouth": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
+ },
+ "tableteverymorning": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
+ },
  "tacrolimus": {
   "ingredients": [
    {
@@ -1368,6 +1463,11 @@
   "score": 1.0,
   "status": "matched"
  },
+ "twicedailyfor days": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
+ },
  "valsartan": {
   "ingredients": [
    {
@@ -1407,6 +1507,11 @@
   ],
   "score": 1.0,
   "status": "matched"
+ },
+ "warfarinsodium": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
  },
  "xyzzyfoo": {
   "ingredients": [],

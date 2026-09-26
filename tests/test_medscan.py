@@ -132,3 +132,22 @@ def test_prepare_rotates_downsizes_and_survives_junk():
     Image.new("RGB", (4000, 3000), "white").save(buf, "JPEG")
     assert max(Image.open(io.BytesIO(vision.prepare(buf.getvalue()))).size) == 1800
     assert vision.prepare(b"junk") == b"junk"
+
+
+# --- OCR route: free text goes in, so only real ingredient names may come out ---
+@pytest.mark.parametrize("line", ["(NSAID)", "Take 1 tablet every morning", "Refills: 3",
+                                  "Dr. A. Rivera", "Dietary Supplement"])
+def test_ocr_lines_that_are_not_drugs_are_rejected(line):
+    assert vision._resolve_printed(line) is None
+
+
+@pytest.mark.parametrize("line,name", [("SIMVASTATIN 40 MG", "simvastatin"),
+                                       ("WARFARINSODIUM 5 MG", "warfarin"),
+                                       ("LEVOTHYROXINE 75 MCG", "levothyroxine")])
+def test_ocr_lines_with_drug_names_resolve_even_when_glued(line, name):
+    assert [i["name"] for i in vision._resolve_printed(line)["ingredients"]] == [name]
+
+
+@pytest.mark.parametrize("line", ["DEMO PHARMACY", "Qty:30 Refills:3", "Dr.A.Rivera", "Rx#000-4521"])
+def test_ocr_skips_pharmacy_boilerplate_before_any_lookup(line):
+    assert vision._SKIP.search(line)

@@ -27,10 +27,16 @@ def _sim(a: str, b: str) -> float:
     return SequenceMatcher(None, a, b).ratio()
 
 
-def _resembles(cleaned: str, names: list[str]) -> float:
+def _resembles(cleaned: str, names: list[str], ingredient_names: list[str] | None = None) -> float:
     """Best similarity between any printed word and any candidate name word."""
     words = [w for w in re.findall(r"[a-z]{4,}", cleaned)]
     cands = [w for n in names for w in re.findall(r"[a-z]{4,}", n.lower())]
+    # OCR often drops the spaces ("warfarinsodium"): an INGREDIENT name inside a token counts.
+    # Never a brand name: brands can be ordinary words ("Morning After").
+    compact = re.sub(r"[^a-z]", "", cleaned)
+    if any(len(w) >= 6 and w in compact for n in ingredient_names or []
+           for w in re.findall(r"[a-z]{4,}", n.lower())):
+        return 1.0
     return max((_sim(w, c) for w in words for c in cands), default=0.0)
 
 
@@ -58,6 +64,8 @@ def resolve(raw: str | None) -> dict:
         hit = _lookup(cleaned)
         _cache.set(cleaned, hit)
         _cache.save()
+    if hit["status"] == "no_match":
+        hit = _glued(cleaned) or hit
     return {**rec, **hit}
 
 
@@ -75,12 +83,26 @@ def _lookup(cleaned: str) -> dict:
                 ins = [{"rxcui": c["rxcui"], "name": p["name"].lower()}]
         if not ins:
             continue
-        sim = _resembles(cleaned, [c.get("name", "")] + [i["name"] for i in ins])
+        sim = _resembles(cleaned, [c.get("name", "")] + [i["name"] for i in ins],
+                         [i["name"] for i in ins])
         if best is None or sim > best[0]:
             best = (sim, ins)
     if best is None or best[0] < 0.8:
         return {"status": "no_match", "ingredients": [], "score": best[0] if best else None}
     return {"status": "matched", "ingredients": best[1], "score": round(best[0], 3)}
+
+
+def _glued(cleaned: str) -> dict | None:
+    """OCR drops spaces ('warfarinsodium'). If a known ingredient name sits inside the text,
+    resolve that name. Ingredients only, from names already cached, so ordinary words
+    can't turn into medicines by way of a brand."""
+    from .labels import known
+    compact = re.sub(r"[^a-z]", "", cleaned)
+    name = next((n for n in known() if len(n) >= 6 and n in compact), None)
+    if not name:
+        return None
+    hit = resolve(name)
+    return {k: hit[k] for k in ("status", "ingredients", "score")} if hit["status"] == "matched" else None
 
 
 def classes(rxcui: str) -> list[str]:

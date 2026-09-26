@@ -8,8 +8,11 @@ FDA drug label it came from.
 
 ## How it works
 
-1. **Read** (`medscan/vision.py`): a free vision model (Gemini free tier, or Ollama
-   locally) transcribes each bottle label. Unreadable fields come back `null`, never guessed.
+1. **Read** (`medscan/vision.py`): pick whichever is available. **Gemini** (free tier) or
+   **Ollama** (local) transcribe each label with a vision model; unreadable fields come back
+   `null`, never guessed. With no key at all, **on-device OCR** (RapidOCR) reads the text and
+   RxNav decides which lines are drug names, accepting only lines that resemble an actual
+   ingredient name (so "(NSAID)" or "every morning" never become medicines).
 2. **Confirm**: you fix or remove anything wrong before any advice is produced.
    Low-confidence readings are flagged.
 3. **Resolve** (`medscan/rx.py`): [RxNav](https://rxnav.nlm.nih.gov) turns label text
@@ -35,12 +38,13 @@ python3 -m venv .venv && .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python -m pytest -q          # offline, uses the committed cache
 ```
 
-Reading photos needs a free vision model. Either:
+Reading photos works with no setup through the on-device OCR. For better results on curved or
+glossy labels, use one of:
 
 - `export GEMINI_API_KEY=...` (free, no card: <https://aistudio.google.com/apikey>), or
 - `ollama pull qwen2.5vl:7b` and leave Ollama running.
 
-Without either, **Try demo bottles** and **Type my list** still work end to end.
+The demo bottles and **Type my list** still work end to end.
 On Streamlit Community Cloud, put `GEMINI_API_KEY` in the app's Secrets.
 
 `scripts/build_cache.py` pre-fetches about 130 common drugs into `data/cache/` so they
