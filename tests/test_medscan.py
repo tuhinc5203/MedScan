@@ -220,3 +220,17 @@ def test_ics_escapes_and_folds_long_lines():
     ics = cabinet.to_ics(cab, date(2026, 9, 27))
     assert all(len(l.encode()) <= 75 for l in ics.split("\r\n"))
     assert "Odd\\, name\; with" in ics.replace("\r\n ", "")
+
+
+def test_notify_config_is_plain_json_and_skips_medicines_without_times():
+    import json
+    cab = cabinet.empty()
+    cabinet.add(cab, "Levothyroxine 50 mcg", ["levothyroxine"], ["07:00"])
+    cabinet.add(cab, "Ibuprofen 200 mg", ["ibuprofen"])
+    med = cab["meds"][0]
+    cabinet.set_taken(cab, date(2026, 9, 26), med, "07:00", True)
+    cfg = cabinet.notify_config(cab, date(2026, 9, 26))
+    json.dumps(cfg)                                            # must serialize for the browser
+    assert [m["label"] for m in cfg["meds"]] == ["Levothyroxine 50 mcg"]
+    assert cfg["taken"] == [f"{med['id']}@07:00"]
+    assert cabinet.notify_config(cab, date(2026, 9, 27))["taken"] == []   # a new day starts clear

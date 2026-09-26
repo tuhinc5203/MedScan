@@ -136,3 +136,10 @@ def to_ics(cab: dict, start: date | None = None, now: datetime | None = None) ->
                   f"DESCRIPTION:{_esc('Take ' + med['label'])}", "END:VALARM", "END:VEVENT"]
     lines.append("END:VCALENDAR")
     return "\r\n".join(_fold(l) for l in lines) + "\r\n"
+
+
+def notify_config(cab: dict, today: date) -> dict:
+    """What the browser needs to fire dose-time notifications: plain JSON, no extras."""
+    return dict(meds=[dict(id=m["id"], label=m["label"], times=list(m["times"]))
+                      for m in cab["meds"] if m["times"]],
+                taken=list(cab["taken"].get(today.isoformat(), [])))

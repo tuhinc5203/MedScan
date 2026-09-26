@@ -41,8 +41,12 @@ check across everything saved, and scanning a new bottle can be checked against 
   starts empty.
 - **Reminders:** *Add daily reminders to my calendar* downloads an `.ics` file with a
   daily-repeating event and an alert at each dose time. It works in Apple, Google and Outlook
-  calendars, so the phone alerts you even when the app is closed. True background push
-  notifications would need accounts and a server, which this demo deliberately avoids.
+  calendars, so the phone alerts you even when the app is closed.
+- **Optional in-app notifications:** a *Notify me at dose times* switch (off by default) asks the
+  browser for permission and shows a notification at each dose time, skipping doses already
+  ticked off. It only works while MedScan is open in a tab (true background push would need
+  accounts and a server, which this demo deliberately avoids), and not in iOS Safari outside an
+  installed web app. The calendar reminders cover those cases.
 
 ## Run it
 

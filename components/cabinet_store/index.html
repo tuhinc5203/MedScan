@@ -1,33 +1,126 @@
 <!doctype html>
-<html><head><meta charset="utf-8"></head><body>
+<html><head><meta charset="utf-8">
+<style>
+  body {margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Arial,sans-serif;
+        color:#1e2f3d; background:transparent;}
+  .row {display:flex; align-items:center; justify-content:space-between; gap:12px;
+        background:#fff; border:1px solid #e2ecf2; border-radius:12px; padding:12px 14px;}
+  .row b {font-size:.95rem; font-weight:600;}
+  .switch {width:44px; height:26px; border-radius:99px; border:0; background:#cfdbe4; position:relative;
+           cursor:pointer; flex:none; padding:0; transition:background .15s;}
+  .switch::after {content:""; position:absolute; top:3px; left:3px; width:20px; height:20px;
+                  border-radius:50%; background:#fff; transition:left .15s;}
+  .switch.on {background:#2f7396;} .switch.on::after {left:21px;}
+  .status {font-size:.82rem; color:#5b7080; margin:8px 2px 0; line-height:1.45;}
+  .status.warn {color:#856416;}
+  .link {background:none; border:0; color:#2c6a91; font:inherit; font-size:.82rem; font-weight:600;
+         padding:0; margin:6px 2px 0; cursor:pointer;}
+</style></head>
+<body><div id="ui"></div>
 <script>
-// Keeps the MedScan cabinet in this browser's localStorage. The data never leaves the
-// device: Python hands it over to be saved, and gets it back once when the page loads.
-const KEY = "medscan.cabinet.v1";
-let lastVersion = -1, announced = false;
+// Keeps the MedScan cabinet in this browser's localStorage and (opt-in) fires dose-time
+// notifications. Nothing leaves the device: Python hands data over to be saved, and gets it
+// back once when the page loads.
+const KEY = "medscan.cabinet.v1", NKEY = "medscan.notify.v1", FKEY = "medscan.fired.v1";
+let cfg = {meds: [], taken: []}, lastVersion = -1, announced = false, ticking = false, lastHeight = -1;
 
 function send(type, extra) {
   window.parent.postMessage(Object.assign({isStreamlitMessage: true, type: type}, extra), "*");
 }
-function localDate() {  // the user's own calendar day, not the server's
+function localDate() {                       // the user's own calendar day, not the server's
   const d = new Date(), p = (n) => String(n).padStart(2, "0");
   return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
 }
-function read() {
-  try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; }
+function read() { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } }
+
+// ---------------------------------------------------------------- notifications
+const supported = () => typeof Notification !== "undefined";
+const notifyOn = () => localStorage.getItem(NKEY) === "on" && supported() && Notification.permission === "granted";
+
+async function show(title, body) {
+  try { new Notification(title, {body: body}); return true; } catch (e) {}      // desktop browsers
+  try {                                                                          // Android Chrome
+    const reg = await navigator.serviceWorker.register("sw.js");
+    await navigator.serviceWorker.ready;
+    await reg.showNotification(title, {body: body});
+    return true;
+  } catch (e) { return false; }
 }
+function tick() {                            // runs in the always-on instance, on every screen
+  if (!notifyOn()) return;
+  const now = new Date(), nowMin = now.getHours() * 60 + now.getMinutes(), day = localDate();
+  let fired; try { fired = JSON.parse(localStorage.getItem(FKEY) || "{}"); } catch (e) { fired = {}; }
+  if (fired.day !== day) fired = {day: day, keys: []};
+  for (const m of cfg.meds) for (const t of m.times) {
+    const k = m.id + "@" + t, hm = t.split(":"), due = +hm[0] * 60 + +hm[1];
+    // Due within the last 5 minutes (background tabs throttle timers), not taken, not yet shown.
+    if (nowMin >= due && nowMin - due <= 5 && !fired.keys.includes(k) && !cfg.taken.includes(k)) {
+      fired.keys.push(k);
+      show("Time for " + m.label, "Scheduled for " + t + ". Follow the directions on your label.");
+    }
+  }
+  try { localStorage.setItem(FKEY, JSON.stringify(fired)); } catch (e) {}
+}
+
+// ---------------------------------------------------------------- the opt-in switch
+let refused = false;   // the person answered the browser's prompt without allowing it
+function status() {
+  if (!supported()) return ["This browser can't show notifications here. Use the calendar reminders instead.", true];
+  if (Notification.permission === "denied")
+    return ["Notifications are blocked. Allow them in your browser's site settings, then try again.", true];
+  if (refused && !notifyOn())
+    return ["Permission wasn't granted. Tap the switch again and choose Allow, or enable notifications for this site in your browser settings.", true];
+  if (notifyOn()) return ["On. You'll get a notification at each dose time while MedScan is open in a tab.", false];
+  return ["Off. Only works while MedScan is open in a tab. For alerts when it is closed, use the calendar reminders.", false];
+}
+function renderUI() {
+  const on = notifyOn(), s = status();
+  document.getElementById("ui").innerHTML =
+    '<div class="row"><b>Notify me at dose times</b><button id="sw" class="switch' + (on ? " on" : "") +
+    '" role="switch" aria-checked="' + on + '" aria-label="Notify me at dose times"></button></div>' +
+    '<div class="status' + (s[1] ? " warn" : "") + '">' + s[0] + '</div>' +
+    (on ? '<button id="test" class="link">Send a test notification</button>' : "");
+  document.getElementById("sw").onclick = async function () {
+    if (notifyOn()) { localStorage.setItem(NKEY, "off"); }
+    else if (supported()) {
+      const p = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+      if (p === "granted") { localStorage.setItem(NKEY, "on"); refused = false; } else { refused = true; }
+    }
+    renderUI();
+  };
+  const t = document.getElementById("test");
+  if (t) t.onclick = () => show("MedScan test", "Dose-time notifications are on.");
+  // Measure the content itself. (documentElement.scrollHeight includes the frame's own height,
+  // so feeding it back makes the frame grow on every render.)
+  const h = Math.ceil(document.getElementById("ui").getBoundingClientRect().height) + 4;
+  if (h !== lastHeight) { lastHeight = h; send("streamlit:setFrameHeight", {height: h}); }
+}
+
+// ---------------------------------------------------------------- Streamlit protocol
+let gotRender = false;
 window.addEventListener("message", function (e) {
   if (!e.data || e.data.type !== "streamlit:render") return;
-  const w = (e.data.args || {}).write;
-  if (w && w.v > lastVersion) {
-    try { localStorage.setItem(KEY, JSON.stringify(w.data)); } catch (err) {}
-    lastVersion = w.v;
+  gotRender = true;
+  const a = e.data.args || {};
+  if (a.ui) { renderUI(); return; }
+  cfg = {meds: a.meds || [], taken: a.taken || []};
+  if (a.write && a.write.v > lastVersion) {
+    try { localStorage.setItem(KEY, JSON.stringify(a.write.data)); } catch (err) {}
+    lastVersion = a.write.v;
   }
-  if (!announced) {                       // once per page load: report what is stored
+  if (!announced) {                          // once per page load: report what is stored
     announced = true;
     send("streamlit:setComponentValue", {value: {loaded: true, data: read(), today: localDate()}, dataType: "json"});
   }
+  if (!ticking) { ticking = true; setInterval(tick, 15000); }
+  tick();
 });
 send("streamlit:componentReady", {apiVersion: 1});
 send("streamlit:setFrameHeight", {height: 0});
+// A re-mounted frame occasionally misses its first render message. Ask again until it arrives.
+let asks = 0;
+const asker = setInterval(function () {
+  if (gotRender || ++asks > 10) return clearInterval(asker);
+  send("streamlit:componentReady", {apiVersion: 1});
+}, 1000);
 </script></body></html>

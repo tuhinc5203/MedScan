@@ -7,7 +7,7 @@ from datetime import date
 import streamlit as st
 
 from medscan import advice, cabinet, pipeline, vision
-from medscan.store_browser import sync
+from medscan.store_browser import notify_switch, sync
 from medscan.theme import CSS
 
 st.set_page_config(page_title="MedScan", layout="centered")
@@ -38,7 +38,7 @@ def cab_save():
     ss.cab_write = {"v": ss.cab_ver, "data": ss.cabinet}
 
 
-saved = sync(ss.get("cab_write"))
+saved = sync(ss.get("cab_write"), cabinet.notify_config(ss.cabinet, ss.today), ss.today.isoformat())
 if saved and not ss.cab_loaded:
     ss.cab_loaded = True
     try:
@@ -357,6 +357,9 @@ def cabinet_screen():
     st.markdown('<div class="title">My cabinet</div><p class="lead">Your running list of '
                 'medicines. It is saved in this browser only. Nothing is sent to a server.</p>',
                 unsafe_allow_html=True)
+    # Fixed position, above everything that grows or shrinks: a frame that moves gets re-mounted
+    # by Streamlit and can miss its first render.
+    notify_switch()
     if not cab["meds"]:
         st.markdown('<div class="card note">Nothing saved yet. Scan your bottles and choose '
                     '<b>Save to my cabinet</b>, or add a medicine below.</div>',
@@ -416,6 +419,7 @@ def cabinet_screen():
                     'Google and Outlook calendars, so your phone alerts you even when MedScan is '
                     'closed. Open the file, or tap it after downloading, to add it.</div>',
                     unsafe_allow_html=True)
+
     st.markdown('<div class="fine">MedScan is a hackathon demo. Reminders help you remember; they '
                 'are not a substitute for your prescriber\'s directions.</div>',
                 unsafe_allow_html=True)
