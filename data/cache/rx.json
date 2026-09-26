@@ -1508,6 +1508,16 @@
   "score": 1.0,
   "status": "matched"
  },
+ "warfarin sodium": {
+  "ingredients": [
+   {
+    "name": "warfarin",
+    "rxcui": "11289"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
  "warfarinsodium": {
   "ingredients": [],
   "score": null,

@@ -158,12 +158,54 @@ def scan():
 
 
 # ─────────────────────────── Confirm list ───────────────────────────
+def add_photo_block(meds):
+    """Read one more photo and append its bottles to the list (nothing is replaced)."""
+    ss.setdefault("more_n", 0)
+    with st.expander("Missed one? Add another photo"):
+        c1, c2 = st.columns(2)
+        if c1.button("Take or choose photo", key="more_up", icon=":material/photo_camera:",
+                     use_container_width=True):
+            ss.more_mode = "upload"
+        if c2.button("Use webcam", key="more_cam", icon=":material/videocam:",
+                     use_container_width=True):
+            ss.more_mode = "camera"
+        key = f"more_{ss.more_n}"     # a new key empties the widget after each photo
+        photo = None
+        if ss.get("more_mode") == "camera":
+            photo = st.camera_input("Photo of the extra bottle", key=key, label_visibility="collapsed")
+        elif ss.get("more_mode") == "upload":
+            photo = st.file_uploader("Photo of the extra bottle", type=["jpg", "jpeg", "png"],
+                                     key=key, label_visibility="collapsed")
+        if photo is None:
+            return
+        with st.spinner("Reading the new photo…"):
+            try:
+                payload = vision.read_bottles(photo.getvalue(), ss.get("backend", "auto"))
+            except vision.VisionError as e:
+                ss.flash = f"Couldn't read that photo: {e}"
+                ss.more_n += 1
+                st.rerun()
+        new, dupes, unreadable = pipeline.merge_bottles([m["raw"] for m in meds], payload["bottles"])
+        meds.extend(new_med(b["drug_name"], b["confidence"]) for b in new)
+        parts = [f"Added {len(new)} from the new photo" if new else
+                 "No new medicine names found in that photo"]
+        if dupes:
+            parts.append(f"{dupes} already on your list")
+        if unreadable:
+            parts.append(f"{unreadable} unreadable")
+        ss.flash = ". ".join(parts) + "."
+        ss.more_n += 1
+        st.rerun()
+
+
 def confirm():
     nav()
     if st.button("Back", icon=":material/arrow_back:", type="tertiary"):
         ss.meds = []
         go("scan")
     meds, n = ss.meds, len(ss.meds)
+    if ss.get("flash"):
+        st.toast(ss.pop("flash"))
     st.markdown(f'<div class="h2">We found {n} medicine{"s" if n != 1 else ""}</div>' if n
                 else '<div class="h2">Add your medicines</div>', unsafe_allow_html=True)
     st.markdown('<p class="lead">Check the list is right before we look for interactions.</p>',
@@ -201,8 +243,9 @@ def confirm():
                 if st.form_submit_button("Save"):
                     m.update(raw=v.strip() or None, conf=1.0, editing=False)
                     st.rerun()
+    add_photo_block(meds)
     with st.form("add", clear_on_submit=True, border=True):
-        v = st.text_input("Add a medicine we missed", placeholder="e.g. Warfarin 5 mg")
+        v = st.text_input("Or type a medicine we missed", placeholder="e.g. Warfarin 5 mg")
         if st.form_submit_button("Add") and v.strip():
             meds.append(new_med(v.strip()))
             st.rerun()

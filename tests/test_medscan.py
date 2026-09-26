@@ -244,3 +244,22 @@ def test_contains_matches_by_ingredient_not_by_label():
     assert cabinet.contains(cab, "Mystery pill", []) is False
     cabinet.add(cab, "Mystery pill", [])                     # unrecognised: matched by its label
     assert cabinet.contains(cab, "mystery pill", [])
+
+
+# --- adding another photo to the list ----------------------------------------
+def test_extra_photo_adds_only_new_medicines():
+    have = ["SIMVASTATIN 40 MG TAB", "Warfarin 5 mg"]
+    got = [dict(drug_name="Warfarin Sodium 5 MG", confidence=0.9),    # same drug, different text
+           dict(drug_name="simvastatin 40 mg tab", confidence=0.9),   # same text, different case
+           dict(drug_name="Levothyroxine 50 mcg", confidence=0.95),   # genuinely new
+           dict(drug_name=None, confidence=0.2)]                      # unreadable
+    new, dupes, unreadable = pipeline.merge_bottles(have, got)
+    assert [b["drug_name"] for b in new] == ["Levothyroxine 50 mcg"]
+    assert (dupes, unreadable) == (2, 1)
+
+
+def test_extra_photo_does_not_add_the_same_new_drug_twice():
+    got = [dict(drug_name="Levothyroxine 50 mcg", confidence=0.9),
+           dict(drug_name="LEVOTHYROXINE 50MCG", confidence=0.9)]
+    new, dupes, _ = pipeline.merge_bottles([], got)
+    assert len(new) == 1 and dupes == 1
