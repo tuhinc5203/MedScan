@@ -31,7 +31,7 @@ FDA drug label it came from.
 
 ```bash
 python3 -m venv .venv && .venv/bin/python -m pip install -r requirements.txt
-.venv/bin/streamlit run app.py
+.venv/bin/streamlit run streamlit_app.py
 .venv/bin/python -m pytest -q          # offline, uses the committed cache
 ```
 

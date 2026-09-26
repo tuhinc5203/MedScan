@@ -1,4 +1,4 @@
-"""MedLens: Streamlit app.   .venv/bin/streamlit run app.py"""
+"""MedLens: Streamlit app.   .venv/bin/streamlit run streamlit_app.py"""
 import html
 import itertools
 import os
