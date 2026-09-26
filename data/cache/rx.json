@@ -1,0 +1,1431 @@
+{
+ "acetaminophen": {
+  "ingredients": [
+   {
+    "name": "acetaminophen",
+    "rxcui": "161"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "advil": {
+  "ingredients": [
+   {
+    "name": "ibuprofen",
+    "rxcui": "5640"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "albuterol": {
+  "ingredients": [
+   {
+    "name": "albuterol",
+    "rxcui": "435"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "allopurinol": {
+  "ingredients": [
+   {
+    "name": "allopurinol",
+    "rxcui": "519"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "alprazolam": {
+  "ingredients": [
+   {
+    "name": "alprazolam",
+    "rxcui": "596"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "amiodarone": {
+  "ingredients": [
+   {
+    "name": "amiodarone",
+    "rxcui": "703"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "amitriptyline": {
+  "ingredients": [
+   {
+    "name": "amitriptyline",
+    "rxcui": "704"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "amlodipine": {
+  "ingredients": [
+   {
+    "name": "amlodipine",
+    "rxcui": "17767"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "amoxicillin": {
+  "ingredients": [
+   {
+    "name": "amoxicillin",
+    "rxcui": "723"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "apixaban": {
+  "ingredients": [
+   {
+    "name": "apixaban",
+    "rxcui": "1364430"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "aripiprazole": {
+  "ingredients": [
+   {
+    "name": "aripiprazole",
+    "rxcui": "89013"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "aspirin": {
+  "ingredients": [
+   {
+    "name": "aspirin",
+    "rxcui": "1191"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "atenolol": {
+  "ingredients": [
+   {
+    "name": "atenolol",
+    "rxcui": "1202"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "atorvastatin": {
+  "ingredients": [
+   {
+    "name": "atorvastatin",
+    "rxcui": "83367"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "azithromycin": {
+  "ingredients": [
+   {
+    "name": "azithromycin",
+    "rxcui": "18631"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "bupropion": {
+  "ingredients": [
+   {
+    "name": "bupropion",
+    "rxcui": "42347"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "calcium carbonate": {
+  "ingredients": [
+   {
+    "name": "calcium carbonate",
+    "rxcui": "1897"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "carbamazepine": {
+  "ingredients": [
+   {
+    "name": "carbamazepine",
+    "rxcui": "2002"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "carvedilol": {
+  "ingredients": [
+   {
+    "name": "carvedilol",
+    "rxcui": "20352"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "celecoxib": {
+  "ingredients": [
+   {
+    "name": "celecoxib",
+    "rxcui": "140587"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "cetirizine": {
+  "ingredients": [
+   {
+    "name": "cetirizine",
+    "rxcui": "20610"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "chloride": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
+ },
+ "cholecalciferol": {
+  "ingredients": [
+   {
+    "name": "cholecalciferol",
+    "rxcui": "2418"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "ciprofloxacin": {
+  "ingredients": [
+   {
+    "name": "ciprofloxacin",
+    "rxcui": "2551"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "citalopram": {
+  "ingredients": [
+   {
+    "name": "citalopram",
+    "rxcui": "2556"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "clarithromycin": {
+  "ingredients": [
+   {
+    "name": "clarithromycin",
+    "rxcui": "21212"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "classes:10156": [
+  "Aluminum Complex"
+ ],
+ "classes:10180": [
+  "Sulfonamide Antimicrobial"
+ ],
+ "classes:10582": [
+  "l-Thyroxine"
+ ],
+ "classes:10689": [
+  "Opioid Agonist"
+ ],
+ "classes:10737": [
+  "Serotonin Reuptake Inhibitor"
+ ],
+ "classes:1114195": [
+  "Factor Xa Inhibitor"
+ ],
+ "classes:11170": [
+  "Calcium Channel Blocker"
+ ],
+ "classes:11289": [
+  "Vitamin K Antagonist"
+ ],
+ "classes:114477": [],
+ "classes:1191": [
+  "Nonsteroidal Anti-inflammatory Drug",
+  "Platelet Aggregation Inhibitor"
+ ],
+ "classes:1202": [
+  "beta-Adrenergic Blocker"
+ ],
+ "classes:136411": [
+  "Phosphodiesterase 5 Inhibitor"
+ ],
+ "classes:1364430": [
+  "Factor Xa Inhibitor"
+ ],
+ "classes:140587": [
+  "Nonsteroidal Anti-inflammatory Drug"
+ ],
+ "classes:161": [],
+ "classes:17128": [
+  "Proton Pump Inhibitor"
+ ],
+ "classes:17767": [
+  "Calcium Channel Blocker",
+  "Dihydropyridine Calcium Channel Blocker"
+ ],
+ "classes:18631": [
+  "Macrolide Antimicrobial"
+ ],
+ "classes:187832": [],
+ "classes:1897": [],
+ "classes:2002": [
+  "Mood Stabilizer"
+ ],
+ "classes:20352": [
+  "alpha-Adrenergic Blocker",
+  "beta-Adrenergic Blocker"
+ ],
+ "classes:20610": [
+  "Histamine-1 Receptor Antagonist"
+ ],
+ "classes:21212": [
+  "Macrolide Antimicrobial"
+ ],
+ "classes:235271": [],
+ "classes:2418": [
+  "Vitamin D"
+ ],
+ "classes:25025": [
+  "5-alpha Reductase Inhibitor"
+ ],
+ "classes:25480": [],
+ "classes:2551": [
+  "Fluoroquinolone Antibacterial"
+ ],
+ "classes:2556": [
+  "Serotonin Reuptake Inhibitor"
+ ],
+ "classes:25789": [
+  "Sulfonylurea"
+ ],
+ "classes:2598": [
+  "Benzodiazepine"
+ ],
+ "classes:26225": [
+  "Serotonin-3 Receptor Antagonist"
+ ],
+ "classes:2670": [
+  "Opioid Agonist"
+ ],
+ "classes:2683": [
+  "Alkaloid"
+ ],
+ "classes:283742": [
+  "Proton Pump Inhibitor"
+ ],
+ "classes:28439": [
+  "Anti-epileptic Agent",
+  "Mood Stabilizer"
+ ],
+ "classes:28889": [],
+ "classes:29046": [
+  "Angiotensin Converting Enzyme Inhibitor"
+ ],
+ "classes:3008": [
+  "Calcineurin Inhibitor Immunosuppressant"
+ ],
+ "classes:301542": [
+  "HMG-CoA Reductase Inhibitor"
+ ],
+ "classes:321988": [
+  "Serotonin Reuptake Inhibitor"
+ ],
+ "classes:32937": [
+  "Serotonin Reuptake Inhibitor"
+ ],
+ "classes:32968": [
+  "P2Y12 Platelet Inhibitor"
+ ],
+ "classes:3322": [
+  "Benzodiazepine"
+ ],
+ "classes:3355": [
+  "Nonsteroidal Anti-inflammatory Drug"
+ ],
+ "classes:3407": [
+  "Cardiac Glycoside"
+ ],
+ "classes:3443": [
+  "Calcium Channel Blocker"
+ ],
+ "classes:35636": [
+  "Atypical Antipsychotic"
+ ],
+ "classes:358263": [
+  "Phosphodiesterase 5 Inhibitor"
+ ],
+ "classes:3640": [
+  "Tetracycline-class Drug"
+ ],
+ "classes:36437": [
+  "Serotonin Reuptake Inhibitor"
+ ],
+ "classes:36567": [
+  "HMG-CoA Reductase Inhibitor"
+ ],
+ "classes:3827": [
+  "Angiotensin Converting Enzyme Inhibitor"
+ ],
+ "classes:38404": [],
+ "classes:39786": [
+  "Serotonin and Norepinephrine Reuptake Inhibitor"
+ ],
+ "classes:39993": [
+  "gamma-Aminobutyric Acid A Receptor Positive Modulator"
+ ],
+ "classes:4053": [
+  "Macrolide",
+  "Macrolide Antimicrobial"
+ ],
+ "classes:40790": [
+  "Proton Pump Inhibitor"
+ ],
+ "classes:41493": [
+  "Nonsteroidal Anti-inflammatory Drug"
+ ],
+ "classes:42316": [
+  "Calcineurin Inhibitor Immunosuppressant"
+ ],
+ "classes:42347": [
+  "Aminoketone"
+ ],
+ "classes:42463": [
+  "HMG-CoA Reductase Inhibitor"
+ ],
+ "classes:435": [
+  "beta2-Adrenergic Agonist"
+ ],
+ "classes:4450": [
+  "Azole Antifungal"
+ ],
+ "classes:4493": [
+  "Serotonin Reuptake Inhibitor"
+ ],
+ "classes:4603": [
+  "Loop Diuretic"
+ ],
+ "classes:4821": [
+  "Sulfonylurea"
+ ],
+ "classes:51272": [
+  "Atypical Antipsychotic"
+ ],
+ "classes:519": [
+  "Xanthine Oxidase Inhibitor"
+ ],
+ "classes:52175": [
+  "Angiotensin 2 Receptor Blocker"
+ ],
+ "classes:5487": [
+  "Thiazide Diuretic"
+ ],
+ "classes:5489": [
+  "Opioid Agonist"
+ ],
+ "classes:5640": [
+  "Nonsteroidal Anti-inflammatory Drug"
+ ],
+ "classes:593411": [
+  "Dipeptidyl Peptidase 4 Inhibitor"
+ ],
+ "classes:596": [
+  "Benzodiazepine"
+ ],
+ "classes:6135": [
+  "Azole Antifungal",
+  "Cortisol Synthesis Inhibitor"
+ ],
+ "classes:61381": [
+  "Atypical Antipsychotic"
+ ],
+ "classes:6448": [],
+ "classes:6470": [
+  "Benzodiazepine"
+ ],
+ "classes:6472": [
+  "HMG-CoA Reductase Inhibitor"
+ ],
+ "classes:6581": [],
+ "classes:6809": [
+  "Biguanide"
+ ],
+ "classes:6851": [
+  "Folate Analog Metabolic Inhibitor"
+ ],
+ "classes:6902": [
+  "Corticosteroid"
+ ],
+ "classes:6918": [
+  "beta-Adrenergic Blocker"
+ ],
+ "classes:6922": [
+  "Nitroimidazole Antimicrobial"
+ ],
+ "classes:69749": [
+  "Angiotensin 2 Receptor Blocker"
+ ],
+ "classes:703": [
+  "Antiarrhythmic"
+ ],
+ "classes:704": [
+  "Tricyclic Antidepressant"
+ ],
+ "classes:7052": [
+  "Opioid Agonist"
+ ],
+ "classes:723": [
+  "Penicillin-class Antibacterial"
+ ],
+ "classes:7258": [
+  "Nonsteroidal Anti-inflammatory Drug"
+ ],
+ "classes:72625": [
+  "Serotonin and Norepinephrine Reuptake Inhibitor"
+ ],
+ "classes:7646": [
+  "Proton Pump Inhibitor"
+ ],
+ "classes:77492": [
+  "alpha-Adrenergic Blocker"
+ ],
+ "classes:7804": [
+  "Opioid Agonist"
+ ],
+ "classes:8183": [
+  "Anti-epileptic Agent"
+ ],
+ "classes:82122": [
+  "Fluoroquinolone Antibacterial"
+ ],
+ "classes:83367": [
+  "HMG-CoA Reductase Inhibitor"
+ ],
+ "classes:8591": [],
+ "classes:8640": [
+  "Corticosteroid"
+ ],
+ "classes:8787": [
+  "beta-Adrenergic Blocker"
+ ],
+ "classes:88249": [
+  "Leukotriene Receptor Antagonist"
+ ],
+ "classes:89013": [
+  "Atypical Antipsychotic"
+ ],
+ "classes:9384": [
+  "Rifamycin Antibacterial"
+ ],
+ "classes:9997": [
+  "Aldosterone Antagonist"
+ ],
+ "clonazepam": {
+  "ingredients": [
+   {
+    "name": "clonazepam",
+    "rxcui": "2598"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "clopidogrel": {
+  "ingredients": [
+   {
+    "name": "clopidogrel",
+    "rxcui": "32968"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "codeine": {
+  "ingredients": [
+   {
+    "name": "codeine",
+    "rxcui": "2670"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "colchicine": {
+  "ingredients": [
+   {
+    "name": "colchicine",
+    "rxcui": "2683"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "cyclosporine": {
+  "ingredients": [
+   {
+    "name": "cyclosporine",
+    "rxcui": "3008"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "diazepam": {
+  "ingredients": [
+   {
+    "name": "diazepam",
+    "rxcui": "3322"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "diclofenac": {
+  "ingredients": [
+   {
+    "name": "diclofenac",
+    "rxcui": "3355"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "digoxin": {
+  "ingredients": [
+   {
+    "name": "digoxin",
+    "rxcui": "3407"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "diltiazem": {
+  "ingredients": [
+   {
+    "name": "diltiazem",
+    "rxcui": "3443"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "doxycycline": {
+  "ingredients": [
+   {
+    "name": "doxycycline",
+    "rxcui": "3640"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "duloxetine": {
+  "ingredients": [
+   {
+    "name": "duloxetine",
+    "rxcui": "72625"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "enalapril": {
+  "ingredients": [
+   {
+    "name": "enalapril",
+    "rxcui": "3827"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "erythromycin": {
+  "ingredients": [
+   {
+    "name": "erythromycin",
+    "rxcui": "4053"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "escitalopram": {
+  "ingredients": [
+   {
+    "name": "escitalopram",
+    "rxcui": "321988"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "esomeprazole": {
+  "ingredients": [
+   {
+    "name": "esomeprazole",
+    "rxcui": "283742"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "ferrous": {
+  "ingredients": [
+   {
+    "name": "ferrous cacodylate",
+    "rxcui": "235271"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "finasteride": {
+  "ingredients": [
+   {
+    "name": "finasteride",
+    "rxcui": "25025"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "fluconazole": {
+  "ingredients": [
+   {
+    "name": "fluconazole",
+    "rxcui": "4450"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "fluoxetine": {
+  "ingredients": [
+   {
+    "name": "fluoxetine",
+    "rxcui": "4493"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "furosemide": {
+  "ingredients": [
+   {
+    "name": "furosemide",
+    "rxcui": "4603"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "gabapentin": {
+  "ingredients": [
+   {
+    "name": "gabapentin",
+    "rxcui": "25480"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "glimepiride": {
+  "ingredients": [
+   {
+    "name": "glimepiride",
+    "rxcui": "25789"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "glipizide": {
+  "ingredients": [
+   {
+    "name": "glipizide",
+    "rxcui": "4821"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "hydrochlorothiazide": {
+  "ingredients": [
+   {
+    "name": "hydrochlorothiazide",
+    "rxcui": "5487"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "hydrocodone": {
+  "ingredients": [
+   {
+    "name": "hydrocodone",
+    "rxcui": "5489"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "ibuprofen": {
+  "ingredients": [
+   {
+    "name": "ibuprofen",
+    "rxcui": "5640"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "insulin": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
+ },
+ "ketoconazole": {
+  "ingredients": [
+   {
+    "name": "ketoconazole",
+    "rxcui": "6135"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "lamotrigine": {
+  "ingredients": [
+   {
+    "name": "lamotrigine",
+    "rxcui": "28439"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "lansoprazole": {
+  "ingredients": [
+   {
+    "name": "lansoprazole",
+    "rxcui": "17128"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "levetiracetam": {
+  "ingredients": [
+   {
+    "name": "levetiracetam",
+    "rxcui": "114477"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "levofloxacin": {
+  "ingredients": [
+   {
+    "name": "levofloxacin",
+    "rxcui": "82122"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "levothyroxine": {
+  "ingredients": [
+   {
+    "name": "levothyroxine",
+    "rxcui": "10582"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "lisinopril": {
+  "ingredients": [
+   {
+    "name": "lisinopril",
+    "rxcui": "29046"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "lisinopril hctz": {
+  "ingredients": [
+   {
+    "name": "lisinopril",
+    "rxcui": "29046"
+   },
+   {
+    "name": "hydrochlorothiazide",
+    "rxcui": "5487"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "lithium": {
+  "ingredients": [
+   {
+    "name": "lithium",
+    "rxcui": "6448"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "loratadine": {
+  "ingredients": [
+   {
+    "name": "loratadine",
+    "rxcui": "28889"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "lorazepam": {
+  "ingredients": [
+   {
+    "name": "lorazepam",
+    "rxcui": "6470"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "losartan": {
+  "ingredients": [
+   {
+    "name": "losartan",
+    "rxcui": "52175"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "lovastatin": {
+  "ingredients": [
+   {
+    "name": "lovastatin",
+    "rxcui": "6472"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "magnesium hydroxide": {
+  "ingredients": [
+   {
+    "name": "magnesium hydroxide",
+    "rxcui": "6581"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "meloxicam": {
+  "ingredients": [
+   {
+    "name": "meloxicam",
+    "rxcui": "41493"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "metformin": {
+  "ingredients": [
+   {
+    "name": "metformin",
+    "rxcui": "6809"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "methotrexate": {
+  "ingredients": [
+   {
+    "name": "methotrexate",
+    "rxcui": "6851"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "methylprednisolone": {
+  "ingredients": [
+   {
+    "name": "methylprednisolone",
+    "rxcui": "6902"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "metoprolol": {
+  "ingredients": [
+   {
+    "name": "metoprolol",
+    "rxcui": "6918"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "metronidazole": {
+  "ingredients": [
+   {
+    "name": "metronidazole",
+    "rxcui": "6922"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "mobic": {
+  "ingredients": [
+   {
+    "name": "meloxicam",
+    "rxcui": "41493"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "montelukast": {
+  "ingredients": [
+   {
+    "name": "montelukast",
+    "rxcui": "88249"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "morphine": {
+  "ingredients": [
+   {
+    "name": "morphine",
+    "rxcui": "7052"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "naproxen": {
+  "ingredients": [
+   {
+    "name": "naproxen",
+    "rxcui": "7258"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "olanzapine": {
+  "ingredients": [
+   {
+    "name": "olanzapine",
+    "rxcui": "61381"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "omeprazole": {
+  "ingredients": [
+   {
+    "name": "omeprazole",
+    "rxcui": "7646"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "ondansetron": {
+  "ingredients": [
+   {
+    "name": "ondansetron",
+    "rxcui": "26225"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "oxycodone": {
+  "ingredients": [
+   {
+    "name": "oxycodone",
+    "rxcui": "7804"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "pantoprazole": {
+  "ingredients": [
+   {
+    "name": "pantoprazole",
+    "rxcui": "40790"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "paroxetine": {
+  "ingredients": [
+   {
+    "name": "paroxetine",
+    "rxcui": "32937"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "phenytoin": {
+  "ingredients": [
+   {
+    "name": "phenytoin",
+    "rxcui": "8183"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "potassium chloride": {
+  "ingredients": [
+   {
+    "name": "potassium chloride",
+    "rxcui": "8591"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "pravastatin": {
+  "ingredients": [
+   {
+    "name": "pravastatin",
+    "rxcui": "42463"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "prednisone": {
+  "ingredients": [
+   {
+    "name": "prednisone",
+    "rxcui": "8640"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "pregabalin": {
+  "ingredients": [
+   {
+    "name": "pregabalin",
+    "rxcui": "187832"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "propranolol": {
+  "ingredients": [
+   {
+    "name": "propranolol",
+    "rxcui": "8787"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "quetiapine": {
+  "ingredients": [
+   {
+    "name": "quetiapine",
+    "rxcui": "51272"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "rifampin": {
+  "ingredients": [
+   {
+    "name": "rifampin",
+    "rxcui": "9384"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "risperidone": {
+  "ingredients": [
+   {
+    "name": "risperidone",
+    "rxcui": "35636"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "rivaroxaban": {
+  "ingredients": [
+   {
+    "name": "rivaroxaban",
+    "rxcui": "1114195"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "rosuvastatin": {
+  "ingredients": [
+   {
+    "name": "rosuvastatin",
+    "rxcui": "301542"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "sertraline": {
+  "ingredients": [
+   {
+    "name": "sertraline",
+    "rxcui": "36437"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "sildenafil": {
+  "ingredients": [
+   {
+    "name": "sildenafil",
+    "rxcui": "136411"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "simvastatin": {
+  "ingredients": [
+   {
+    "name": "simvastatin",
+    "rxcui": "36567"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "sitagliptin": {
+  "ingredients": [
+   {
+    "name": "sitagliptin",
+    "rxcui": "593411"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "spironolactone": {
+  "ingredients": [
+   {
+    "name": "spironolactone",
+    "rxcui": "9997"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "sucralfate": {
+  "ingredients": [
+   {
+    "name": "sucralfate",
+    "rxcui": "10156"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "sulfamethoxazole": {
+  "ingredients": [
+   {
+    "name": "sulfamethoxazole",
+    "rxcui": "10180"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "tacrolimus": {
+  "ingredients": [
+   {
+    "name": "tacrolimus",
+    "rxcui": "42316"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "tadalafil": {
+  "ingredients": [
+   {
+    "name": "tadalafil",
+    "rxcui": "358263"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "tamsulosin": {
+  "ingredients": [
+   {
+    "name": "tamsulosin",
+    "rxcui": "77492"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "topiramate": {
+  "ingredients": [
+   {
+    "name": "topiramate",
+    "rxcui": "38404"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "tramadol": {
+  "ingredients": [
+   {
+    "name": "tramadol",
+    "rxcui": "10689"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "trazodone": {
+  "ingredients": [
+   {
+    "name": "trazodone",
+    "rxcui": "10737"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "valsartan": {
+  "ingredients": [
+   {
+    "name": "valsartan",
+    "rxcui": "69749"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "venlafaxine": {
+  "ingredients": [
+   {
+    "name": "venlafaxine",
+    "rxcui": "39786"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "verapamil": {
+  "ingredients": [
+   {
+    "name": "verapamil",
+    "rxcui": "11170"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "warfarin": {
+  "ingredients": [
+   {
+    "name": "warfarin",
+    "rxcui": "11289"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "xyzzyfoo": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
+ },
+ "zolpidem": {
+  "ingredients": [
+   {
+    "name": "zolpidem",
+    "rxcui": "39993"
+   }
+  ],
+  "score": 1.0,
+  "status": "matched"
+ },
+ "zzqxv": {
+  "ingredients": [],
+  "score": null,
+  "status": "no_match"
+ }
+}
