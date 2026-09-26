@@ -50,6 +50,13 @@ if saved and not ss.cab_loaded:
         st.rerun()
 
 
+def save_to_cabinet(pairs):
+    """pairs: [(label, ingredient names)]. Skips anything already saved."""
+    added = sum(cabinet.add(ss.cabinet, label, names) == "added" for label, names in pairs)
+    cab_save()
+    st.toast(f"Added {added} to your cabinet." if added else "Already in your cabinet.")
+
+
 def new_med(raw, conf=1.0):
     return dict(id=next(ids), raw=raw, conf=conf, editing=False)
 
@@ -165,6 +172,8 @@ def confirm():
         r = resolved(m["raw"], m["conf"])
         name = m["raw"] or "Couldn't read this label"
         sub = f"Checked as {', '.join(r['names'])}" if r["names"] else ""
+        if m["raw"] and cabinet.contains(ss.cabinet, m["raw"], r["names"]):
+            sub = (sub + " · " if sub else "") + "Saved in your cabinet"
         if m["raw"] is None or r["status"] == "no_match":
             warn = "We couldn't read or recognise this one. Please fix it or remove it."
         elif r["status"] == "unavailable":
@@ -203,6 +212,13 @@ def confirm():
     with_cab = False
     if cab_meds:
         with_cab = st.checkbox(f"Also check against my cabinet ({len(cab_meds)} saved)", value=True)
+    pending = [(m["raw"], resolved(m["raw"], m["conf"])["names"]) for m in named
+               if not cabinet.contains(ss.cabinet, m["raw"], resolved(m["raw"], m["conf"])["names"])]
+    if named:
+        st.button(f"Add {len(pending)} to my cabinet" if pending else "All saved in your cabinet",
+                  icon=":material/add_circle:" if pending else ":material/check_circle:",
+                  use_container_width=True, disabled=not pending, key="save_confirm",
+                  on_click=save_to_cabinet, args=(pending,))
     if st.button("Looks right, check interactions", type="primary", use_container_width=True,
                  disabled=not named):
         labels = [m["raw"] for m in named]
@@ -233,12 +249,7 @@ def summary_text(r):
 
 
 def save_scanned():
-    added = 0
-    for it in ss.result["items"]:
-        if it["ingredients"] and cabinet.add(ss.cabinet, it["label"], it["names"]) == "added":
-            added += 1
-    cab_save()
-    st.toast(f"Saved {added} to your cabinet." if added else "Already in your cabinet.")
+    save_to_cabinet([(it["label"], it["names"]) for it in ss.result["items"]])
 
 
 def results():

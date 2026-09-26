@@ -62,12 +62,20 @@ def nice_time(hhmm: str) -> str:
     return f"{(h % 12) or 12}:{m} {'AM' if h < 12 else 'PM'}"
 
 
+def _key(label: str, ingredients: list[str]) -> frozenset:
+    return frozenset(ingredients) or frozenset([label.strip().lower()])
+
+
+def contains(cab: dict, label: str, ingredients: list[str]) -> bool:
+    """Is this medicine (by active ingredient) already saved?"""
+    key = _key(label, ingredients)
+    return any(_key(m["label"], m["ingredients"]) == key for m in cab["meds"])
+
+
 def add(cab: dict, label: str, ingredients: list[str], times: list[str] | None = None) -> str:
     """Returns 'added' or 'exists'. The same active ingredient is never saved twice."""
-    key = frozenset(ingredients) or frozenset([label.strip().lower()])
-    for m in cab["meds"]:
-        if (frozenset(m["ingredients"]) or frozenset([m["label"].lower()])) == key:
-            return "exists"
+    if contains(cab, label, ingredients):
+        return "exists"
     cab["meds"].append(dict(id=uuid.uuid4().hex[:8], label=label.strip(),
                             ingredients=list(ingredients), times=sorted(times or [])))
     return "added"

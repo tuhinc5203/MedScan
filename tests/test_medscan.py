@@ -234,3 +234,13 @@ def test_notify_config_is_plain_json_and_skips_medicines_without_times():
     assert [m["label"] for m in cfg["meds"]] == ["Levothyroxine 50 mcg"]
     assert cfg["taken"] == [f"{med['id']}@07:00"]
     assert cabinet.notify_config(cab, date(2026, 9, 27))["taken"] == []   # a new day starts clear
+
+
+def test_contains_matches_by_ingredient_not_by_label():
+    cab = cabinet.empty()
+    cabinet.add(cab, "Advil 200mg", ["ibuprofen"])
+    assert cabinet.contains(cab, "Ibuprofen 400 mg", ["ibuprofen"])
+    assert not cabinet.contains(cab, "Warfarin 5 mg", ["warfarin"])
+    assert cabinet.contains(cab, "Mystery pill", []) is False
+    cabinet.add(cab, "Mystery pill", [])                     # unrecognised: matched by its label
+    assert cabinet.contains(cab, "mystery pill", [])
