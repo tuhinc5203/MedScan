@@ -1,0 +1,33 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head><body>
+<script>
+// Keeps the MedScan cabinet in this browser's localStorage. The data never leaves the
+// device: Python hands it over to be saved, and gets it back once when the page loads.
+const KEY = "medscan.cabinet.v1";
+let lastVersion = -1, announced = false;
+
+function send(type, extra) {
+  window.parent.postMessage(Object.assign({isStreamlitMessage: true, type: type}, extra), "*");
+}
+function localDate() {  // the user's own calendar day, not the server's
+  const d = new Date(), p = (n) => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+}
+function read() {
+  try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; }
+}
+window.addEventListener("message", function (e) {
+  if (!e.data || e.data.type !== "streamlit:render") return;
+  const w = (e.data.args || {}).write;
+  if (w && w.v > lastVersion) {
+    try { localStorage.setItem(KEY, JSON.stringify(w.data)); } catch (err) {}
+    lastVersion = w.v;
+  }
+  if (!announced) {                       // once per page load: report what is stored
+    announced = true;
+    send("streamlit:setComponentValue", {value: {loaded: true, data: read(), today: localDate()}, dataType: "json"});
+  }
+});
+send("streamlit:componentReady", {apiVersion: 1});
+send("streamlit:setFrameHeight", {height: 0});
+</script></body></html>

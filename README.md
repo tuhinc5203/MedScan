@@ -30,6 +30,20 @@ FDA drug label it came from.
    (for example levothyroxine and calcium), and says spacing *won't* help when the label
    says the effect happens even 12 hours apart (clopidogrel and omeprazole).
 
+## My Cabinet and reminders
+
+Save medicines from a scan (or add them by hand) to a running **Cabinet**, give each daily dose
+times, and tick doses off in a **Today** checklist. **Check my whole cabinet** runs the interaction
+check across everything saved, and scanning a new bottle can be checked against the cabinet too.
+
+- **Private by design:** the cabinet is stored in this browser's localStorage
+  (`components/cabinet_store`). It is never sent to a server, and another device or browser
+  starts empty.
+- **Reminders:** *Add daily reminders to my calendar* downloads an `.ics` file with a
+  daily-repeating event and an alert at each dose time. It works in Apple, Google and Outlook
+  calendars, so the phone alerts you even when the app is closed. True background push
+  notifications would need accounts and a server, which this demo deliberately avoids.
+
 ## Run it
 
 ```bash

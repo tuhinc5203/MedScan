@@ -151,3 +151,72 @@ def test_ocr_lines_with_drug_names_resolve_even_when_glued(line, name):
 @pytest.mark.parametrize("line", ["DEMO PHARMACY", "Qty:30 Refills:3", "Dr.A.Rivera", "Rx#000-4521"])
 def test_ocr_skips_pharmacy_boilerplate_before_any_lookup(line):
     assert vision._SKIP.search(line)
+
+
+# --- cabinet ----------------------------------------------------------------
+from datetime import date, datetime, timezone
+
+from medscan import cabinet
+
+
+def test_parse_times_accepts_common_forms_and_reports_the_rest():
+    good, bad = cabinet.parse_times("8am, 8:30 pm, 20:00, noon, 25:00, 12am")
+    assert good == ["00:00", "08:00", "20:00", "20:30"]
+    assert bad == ["noon", "25:00"]
+
+
+def test_add_never_saves_the_same_ingredient_twice():
+    cab = cabinet.empty()
+    assert cabinet.add(cab, "Advil 200mg", ["ibuprofen"]) == "added"
+    assert cabinet.add(cab, "Ibuprofen 400 mg", ["ibuprofen"]) == "exists"
+    assert cabinet.add(cab, "Warfarin 5mg", ["warfarin"], ["08:00"]) == "added"
+    assert len(cab["meds"]) == 2
+
+
+def test_remove_also_clears_taken_marks():
+    cab = cabinet.empty()
+    cabinet.add(cab, "Warfarin 5mg", ["warfarin"], ["08:00"])
+    med = cab["meds"][0]
+    cabinet.set_taken(cab, date(2026, 9, 26), med, "08:00", True)
+    assert cabinet.is_taken(cab, date(2026, 9, 26), med, "08:00")
+    cabinet.remove(cab, med["id"])
+    assert cab["meds"] == [] and cab["taken"]["2026-09-26"] == []
+
+
+def test_taken_marks_only_keep_today():
+    cab = cabinet.empty()
+    cabinet.add(cab, "Warfarin 5mg", ["warfarin"], ["08:00"])
+    med = cab["meds"][0]
+    cabinet.set_taken(cab, date(2026, 9, 25), med, "08:00", True)
+    cabinet.set_taken(cab, date(2026, 9, 26), med, "08:00", True)
+    assert list(cab["taken"]) == ["2026-09-26"]
+
+
+def test_normalize_survives_garbage_from_the_browser():
+    assert cabinet.normalize(None) == cabinet.empty()
+    assert cabinet.normalize({"meds": "x", "taken": 3}) == cabinet.empty()
+    cab = cabinet.normalize({"meds": [{"label": "  Warfarin 5mg ", "times": ["8am", "zz"]}, {"x": 1}, 5]})
+    assert [m["label"] for m in cab["meds"]] == ["Warfarin 5mg"]
+    assert cab["meds"][0]["times"] == ["08:00"]
+
+
+def test_ics_has_a_daily_repeating_event_and_an_alarm_per_dose_time():
+    cab = cabinet.empty()
+    cabinet.add(cab, "Levothyroxine 50 mcg", ["levothyroxine"], ["07:00"])
+    cabinet.add(cab, "Metformin 500 mg", ["metformin"], ["08:00", "20:00"])
+    cabinet.add(cab, "Ibuprofen 200 mg", ["ibuprofen"])            # no times: no reminder
+    ics = cabinet.to_ics(cab, date(2026, 9, 27), datetime(2026, 9, 26, tzinfo=timezone.utc))
+    assert ics.startswith("BEGIN:VCALENDAR\r\n") and ics.endswith("END:VCALENDAR\r\n")
+    assert ics.count("BEGIN:VEVENT") == 3 and ics.count("RRULE:FREQ=DAILY") == 3
+    assert ics.count("BEGIN:VALARM") == 3
+    assert "DTSTART:20260927T070000" in ics and "SUMMARY:Take Levothyroxine 50 mcg" in ics
+    assert "Ibuprofen" not in ics
+    assert len({l for l in ics.split("\r\n") if l.startswith("UID:")}) == 3   # unique ids
+
+
+def test_ics_escapes_and_folds_long_lines():
+    cab = cabinet.empty()
+    cabinet.add(cab, "Odd, name; with \\ chars " + "x" * 120, ["odd"], ["09:00"])
+    ics = cabinet.to_ics(cab, date(2026, 9, 27))
+    assert all(len(l.encode()) <= 75 for l in ics.split("\r\n"))
+    assert "Odd\\, name\; with" in ics.replace("\r\n ", "")

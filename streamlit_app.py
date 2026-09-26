@@ -2,76 +2,69 @@
 import html
 import itertools
 import os
+from datetime import date
 
 import streamlit as st
 
-from medscan import advice, pipeline, vision
+from medscan import advice, cabinet, pipeline, vision
+from medscan.store_browser import sync
+from medscan.theme import CSS
 
-st.set_page_config(page_title="MedScan", page_icon="🔍", layout="centered")
+st.set_page_config(page_title="MedScan", layout="centered")
 try:  # Streamlit Cloud keeps the free vision key in Secrets
     if "GEMINI_API_KEY" in st.secrets:
         os.environ.setdefault("GEMINI_API_KEY", st.secrets["GEMINI_API_KEY"])
 except Exception:
     pass
 
-st.markdown("""
-<style>
-#MainMenu, footer, header [data-testid="stToolbar"] {visibility:hidden;}
-.block-container {max-width:430px; padding-top:1.2rem; padding-bottom:2rem;}
-h2,h3,.serif {font-family: Georgia, 'Times New Roman', serif !important; color:#1c2b2d;}
-.brand {font-family: Georgia, serif; font-weight:700; font-size:1.35rem; color:#1c2b2d; margin-bottom:.6rem;}
-.hero {font-family: Georgia, serif; font-weight:700; font-size:2.2rem; line-height:1.1; margin:.4rem 0 .6rem;}
-.muted {color:#4a5a5c;}
-.small {font-size:.8rem; color:#6b7a7c; text-align:center; margin-top:.8rem;}
-.card {background:#fff; border:1px solid #e6e2d8; border-radius:14px; padding:14px 16px; margin:8px 0;}
-.card.warn {background:#fff8e6; border:2px solid #e6c56a;}
-.med-name {font-weight:700; font-size:1.02rem; color:#1c2b2d;}
-.med-sub {color:#5a6a6c; font-size:.88rem;}
-.med-warn {color:#7a5218; font-size:.88rem; margin-top:6px;}
-.banner {border-radius:14px; padding:16px 18px; color:#fff; margin:6px 0 12px;}
-.banner .big {font-size:1.25rem; font-weight:700;}
-.banner.high {background:#8a2a2a;} .banner.moderate {background:#7a5218;}
-.banner.low {background:#4a5a5c;} .banner.none {background:#2b5c63;}
-.badge {display:inline-block; font-size:.72rem; font-weight:700; letter-spacing:.04em;
-        padding:3px 10px; border-radius:99px; margin-bottom:6px;}
-.badge.high {background:#fbe4e2; color:#8a2a2a;} .badge.moderate {background:#fbeed5; color:#7a5218;}
-.badge.low {background:#e8ecec; color:#4a5a5c;}
-.card h3 {margin:.1rem 0 .5rem; font-size:1.25rem;}
-.spacing {border-radius:10px; padding:10px 12px; margin-top:10px; font-size:.92rem;}
-.spacing.helps {background:#e6f0f0;} .spacing.no_help {background:#f0eee8;}
-.action {background:#eef3f3; border-radius:10px; padding:10px 12px; margin-top:10px; font-size:.92rem;}
-.esc {background:#f3efe6; border-radius:10px; padding:10px 12px; margin-top:8px; font-size:.92rem;}
-.section {font-size:.75rem; font-weight:700; letter-spacing:.08em; color:#5a6a6c; margin:16px 0 4px;}
-.ok {background:#e9f3ee; border:1px solid #bfdccd; border-radius:12px; padding:10px 14px; margin:6px 0;}
-.na {background:#f0eee8; border-radius:12px; padding:10px 14px; margin:6px 0; font-size:.9rem;}
-.quote {font-size:.85rem; color:#3a4a4c; border-left:3px solid #c9c4b6; padding-left:10px; margin:6px 0;}
-.stButton > button {border-radius:12px; font-weight:600; min-height:2.9rem;}
-.stButton > button[kind="primary"], .stDownloadButton > button[kind="primary"]
-  {background:#2b5c63; color:#fff; border:0;}
-</style>
-""", unsafe_allow_html=True)
+st.markdown(CSS, unsafe_allow_html=True)
 esc = html.escape
 ss = st.session_state
 ss.setdefault("stage", "scan")
+ss.setdefault("back", "scan")
 ss.setdefault("meds", [])
 ss.setdefault("mode", None)
 ss.setdefault("error", None)
+ss.setdefault("cabinet", cabinet.empty())
+ss.setdefault("cab_loaded", False)
+ss.setdefault("cab_ver", 0)
+ss.setdefault("today", date.today())
 ids = ss.setdefault("_ids", itertools.count(1))
+
+
+# ── persistence: the cabinet lives in this browser's localStorage, never on a server ──
+def cab_save():
+    ss.cab_ver += 1
+    ss.cab_write = {"v": ss.cab_ver, "data": ss.cabinet}
+
+
+saved = sync(ss.get("cab_write"))
+if saved and not ss.cab_loaded:
+    ss.cab_loaded = True
+    try:
+        ss.today = date.fromisoformat(saved.get("today", ""))  # the user's own calendar day
+    except ValueError:
+        pass
+    if saved.get("data") and ss.get("cab_write") is None:  # don't clobber edits made meanwhile
+        ss.cabinet = cabinet.normalize(saved["data"])
+        st.rerun()
 
 
 def new_med(raw, conf=1.0):
     return dict(id=next(ids), raw=raw, conf=conf, editing=False)
 
 
-def go(stage):
+def go(stage, back=None):
     ss.stage = stage
+    if back:
+        ss.back = back
     st.rerun()
 
 
 def load(payload):
     ss.meds = [new_med(b["drug_name"], b["confidence"]) for b in payload["bottles"]]
     ss.error = None
-    go("confirm")
+    go("confirm", back="confirm")
 
 
 @st.cache_data(show_spinner=False)
@@ -84,32 +77,46 @@ def resolved(raw, conf):
     return pipeline.resolve(raw, conf)
 
 
-# ───────────────────────────── 1 · Scan ─────────────────────────────
+def nav():
+    n = len(ss.cabinet["meds"])
+    in_cabinet = ss.stage == "cabinet" or (ss.stage == "results" and ss.back == "cabinet")
+    st.markdown('<div class="wordmark"><i></i>MedScan</div>', unsafe_allow_html=True)
+    a, b = st.columns(2)
+    if a.button("Scan", icon=":material/photo_camera:", use_container_width=True,
+                type="secondary" if in_cabinet else "primary", key="nav_scan"):
+        go("scan")
+    if b.button(f"Cabinet ({n})" if n else "Cabinet", icon=":material/medication:",
+                use_container_width=True, type="primary" if in_cabinet else "secondary",
+                key="nav_cab"):
+        go("cabinet")
+
+
+# ───────────────────────────── Scan ─────────────────────────────
 def scan():
-    st.markdown('<div class="brand">🔍 MedScan</div>', unsafe_allow_html=True)
-    st.markdown('<div class="hero">Check your medicines in one photo</div>', unsafe_allow_html=True)
-    st.markdown('<p class="muted">Take a picture of your pill bottles. We\'ll list them and '
-                'flag any that shouldn\'t be taken together.</p>', unsafe_allow_html=True)
-    st.info("Hackathon demo. Not medical advice. Please use prop labels, not real "
-            "prescription labels.")
+    nav()
+    st.markdown('<div class="title">Check your medicines in one photo</div>'
+                '<p class="lead">Photograph your pill bottles. MedScan lists them and flags '
+                'combinations that shouldn\'t be taken together.</p>', unsafe_allow_html=True)
+    st.markdown('<div class="card note sub">Hackathon demo, not medical advice. Please use '
+                'prop labels, not real prescription labels.</div>', unsafe_allow_html=True)
     if ss.error:
         st.error(ss.error)
-    st.caption("On a phone, choose **Take / choose photo** for the best result. It uses your "
-               "rear camera at full quality. On a laptop, use **Webcam**.")
-    c1, c2 = st.columns(2)
-    if c1.button("📷 Take / choose photo", type="primary", use_container_width=True):
-        ss.mode = "upload"
-    if c2.button("💻 Webcam", use_container_width=True):
-        ss.mode = "camera"
 
+    c1, c2 = st.columns(2)
+    if c1.button("Take or choose photo", icon=":material/photo_camera:", type="primary",
+                 use_container_width=True):
+        ss.mode = "upload"
+    if c2.button("Use webcam", icon=":material/videocam:", use_container_width=True):
+        ss.mode = "camera"
     photo = None
     if ss.mode == "camera":
         photo = st.camera_input("Turn labels to face the camera", label_visibility="collapsed")
-        st.caption("If nothing appears, allow camera access in your browser's address bar, "
-                   "or use Take / choose photo instead.")
+        st.caption("If nothing appears, allow camera access in your browser's address bar, or "
+                   "use Take or choose photo instead.")
     elif ss.mode == "upload":
         photo = st.file_uploader("Photo of your bottles", type=["jpg", "jpeg", "png"],
                                  label_visibility="collapsed")
+        st.caption("On a phone this opens your camera, using the rear lens at full quality.")
     if photo is not None:
         with st.spinner("Reading your labels…"):
             try:
@@ -123,34 +130,36 @@ def scan():
             st.rerun()
         load(payload)
 
-    st.markdown('<div class="card"><b>For the best scan</b><br>✓ Turn labels to face the camera'
-                '<br>✓ Use good light, avoid glare<br>✓ Include vitamins and store-bought '
-                'medicines too</div>', unsafe_allow_html=True)
+    st.markdown('<div class="eyebrow">For the best scan</div><ul class="tips">'
+                '<li>Turn labels to face the camera</li><li>Use good light and avoid glare</li>'
+                '<li>Include vitamins and store-bought medicines too</li></ul>',
+                unsafe_allow_html=True)
     b1, b2 = st.columns(2)
     if b1.button("Try demo bottles", use_container_width=True):
         load(vision.DEMO)
     if b2.button("Type my list", use_container_width=True):
         ss.meds = []
-        go("confirm")
-    with st.expander("Vision settings"):
+        go("confirm", back="confirm")
+    with st.expander("Photo reading options"):
         opts = ["auto", "gemini", "ollama", "ocr", "demo"]
-        ss.backend = st.selectbox("Backend", opts, index=opts.index(ss.get("backend", "auto")))
-        st.caption(f"Available now: {', '.join(vision.available()) or 'none'}. "
-                   "**ocr** needs no key and reads text on the server; **gemini** reads curved "
-                   "or glossy labels better (free key: aistudio.google.com/apikey).")
-    st.markdown('<div class="small">For information only. Always check with your pharmacist '
-                'or doctor before changing how you take a medicine.</div>', unsafe_allow_html=True)
+        ss.backend = st.selectbox("Reader", opts, index=opts.index(ss.get("backend", "auto")))
+        st.caption(f"Available now: {', '.join(vision.available()) or 'none'}. **ocr** needs no key "
+                   "and reads the text on the server; **gemini** handles curved or glossy labels "
+                   "better (free key: aistudio.google.com/apikey).")
+    st.markdown('<div class="fine">For information only. Always check with your pharmacist or '
+                'doctor before changing how you take a medicine.</div>', unsafe_allow_html=True)
 
 
-# ─────────────────────────── 2 · Confirm list ───────────────────────────
+# ─────────────────────────── Confirm list ───────────────────────────
 def confirm():
-    if st.button("‹ Retake photo", type="tertiary"):
+    nav()
+    if st.button("Back", icon=":material/arrow_back:", type="tertiary"):
         ss.meds = []
         go("scan")
     meds, n = ss.meds, len(ss.meds)
-    st.markdown(f'<h2 class="serif">We found {n} medicine{"s" if n != 1 else ""}</h2>' if n
-                else '<h2 class="serif">Add your medicines</h2>', unsafe_allow_html=True)
-    st.markdown('<p class="muted">Check this list is right before we look for interactions.</p>',
+    st.markdown(f'<div class="h2">We found {n} medicine{"s" if n != 1 else ""}</div>' if n
+                else '<div class="h2">Add your medicines</div>', unsafe_allow_html=True)
+    st.markdown('<p class="lead">Check the list is right before we look for interactions.</p>',
                 unsafe_allow_html=True)
     for m in list(meds):
         r = resolved(m["raw"], m["conf"])
@@ -166,14 +175,14 @@ def confirm():
             warn = ""
         cols = st.columns([6, 1, 1], vertical_alignment="center")
         cols[0].markdown(
-            f'<div class="card{" warn" if warn else ""}"><div class="med-name">{esc(name)}'
-            f'{"?" if warn else ""}</div><div class="med-sub">{esc(sub)}</div>'
-            + (f'<div class="med-warn">⚠ {esc(warn)}</div>' if warn else "") + "</div>",
+            f'<div class="card{" flag" if warn else ""}"><div class="med-name">{esc(name)}</div>'
+            f'<div class="sub">{esc(sub)}</div>'
+            + (f'<div class="flag-text">{esc(warn)}</div>' if warn else "") + "</div>",
             unsafe_allow_html=True)
-        if cols[1].button("✎", key=f"e{m['id']}", help="Edit"):
+        if cols[1].button("", key=f"e{m['id']}", help="Edit", icon=":material/edit:"):
             m["editing"] = not m["editing"]
             st.rerun()
-        if cols[2].button("✕", key=f"x{m['id']}", help="Remove"):
+        if cols[2].button("", key=f"x{m['id']}", help="Remove", icon=":material/close:"):
             meds.remove(m)
             st.rerun()
         if m["editing"]:
@@ -185,19 +194,28 @@ def confirm():
                     st.rerun()
     with st.form("add", clear_on_submit=True, border=True):
         v = st.text_input("Add a medicine we missed", placeholder="e.g. Warfarin 5 mg")
-        if st.form_submit_button("＋ Add") and v.strip():
+        if st.form_submit_button("Add") and v.strip():
             meds.append(new_med(v.strip()))
             st.rerun()
+
     named = [m for m in meds if m["raw"]]
+    cab_meds = ss.cabinet["meds"]
+    with_cab = False
+    if cab_meds:
+        with_cab = st.checkbox(f"Also check against my cabinet ({len(cab_meds)} saved)", value=True)
     if st.button("Looks right, check interactions", type="primary", use_container_width=True,
                  disabled=not named):
+        labels = [m["raw"] for m in named]
+        if with_cab:  # a saved medicine that is the same drug as a scanned one isn't added twice
+            have = {frozenset(resolved(m["raw"], 1.0)["names"]) for m in named}
+            labels += [c["label"] for c in cab_meds if frozenset(c["ingredients"]) not in have]
         with st.spinner("Checking FDA labels…"):
-            ss.result = pipeline.analyze([m["raw"] for m in named])
+            ss.result = pipeline.analyze(labels)
         ss.unreadable = len(meds) - len(named)
-        go("results")
+        go("results", back="confirm")
 
 
-# ───────────────────────────── 3 · Results ─────────────────────────────
+# ───────────────────────────── Results ─────────────────────────────
 def summary_text(r):
     lines = ["MedScan summary (hackathon demo; information only, not medical advice)", "",
              "Medicines listed: " + ", ".join(i["label"] for i in r["items"]), ""]
@@ -214,29 +232,40 @@ def summary_text(r):
     return "\n".join(lines)
 
 
+def save_scanned():
+    added = 0
+    for it in ss.result["items"]:
+        if it["ingredients"] and cabinet.add(ss.cabinet, it["label"], it["names"]) == "added":
+            added += 1
+    cab_save()
+    st.toast(f"Saved {added} to your cabinet." if added else "Already in your cabinet.")
+
+
 def results():
+    nav()
     r = ss.result
-    if st.button("‹ Edit list", type="tertiary"):
-        go("confirm")
+    if st.button("Back", icon=":material/arrow_back:", type="tertiary"):
+        go(ss.back if ss.back in ("confirm", "cabinet") else "scan")
     shown = [c for c in r["cards"] if not c["minor"]]
     minor = [c for c in r["cards"] if c["minor"]]
     sev = shown[0]["severity"] if shown else "none"
     n_chk = len(r["checked"]) - len(r["no_label"])
     head = (f"{len(shown)} interaction{'s' if len(shown) != 1 else ''} found" if shown
             else "No interactions found")
-    icon = {"high": "⚠", "moderate": "ⓘ", "low": "ⓘ", "none": "✓"}[sev]
-    st.markdown(f'<div class="banner {sev}"><div class="big">{icon} {head}</div>in {n_chk} '
-                f'medicine{"s" if n_chk != 1 else ""} checked</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="summary {sev}"><div class="big">{head}</div>'
+                f'<div class="sub">in {n_chk} medicine{"s" if n_chk != 1 else ""} checked</div></div>',
+                unsafe_allow_html=True)
 
     for c in shown:
         sp = c["spacing"]
         st.markdown(
-            f'<div class="card"><span class="badge {c["severity"]}">{c["severity"].upper()} '
-            f'RISK</span><h3>{esc(c["headline"])}</h3><p>{esc(c["body"])}</p>'
-            + (f'<div class="spacing {sp["kind"]}"><b>{esc(sp["title"])}</b><br>{esc(sp["text"])}</div>'
+            f'<div class="pair {c["severity"]}"><span class="tag {c["severity"]}">'
+            f'{c["severity"].capitalize()} risk</span><h3>{esc(c["headline"])}</h3>'
+            f'<p>{esc(c["body"])}</p>'
+            + (f'<div class="inset {sp["kind"]}"><b>{esc(sp["title"])}</b><br>{esc(sp["text"])}</div>'
                if sp else "")
-            + f'<div class="action"><b>What to do</b><br>{esc(c["action"])}<br>'
-              f'{esc(c["never_stop"])}</div><div class="esc">{esc(c["escalation"])}</div></div>',
+            + f'<div class="steps"><b>What to do.</b> {esc(c["action"])} {esc(c["never_stop"])}</div>'
+              f'<div class="inset {"watch" if c["urgent"] else "general"}">{esc(c["escalation"])}</div></div>',
             unsafe_allow_html=True)
         with st.expander("Why is this flagged?"):
             top = c["evidence"][0]
@@ -245,16 +274,16 @@ def results():
             if simple:
                 st.markdown(f"**In plain words** (AI restatement of the label): {simple}")
             for e in c["evidence"]:
-                st.markdown(f'<div class="quote">“{esc(e["quote"])}”<br><span class="med-sub">'
+                st.markdown(f'<div class="quote">“{esc(e["quote"])}”<br><span class="sub">'
                             f'Source: {esc(e["source"])}</span></div>', unsafe_allow_html=True)
 
-    if r["clear"]:
-        st.markdown('<div class="section">NO INTERACTIONS FOUND</div>', unsafe_allow_html=True)
-        for k in r["clear"]:
-            if k not in r["no_label"]:
-                st.markdown(f'<div class="ok">✓ <b>{esc(k.title())}</b><br><span class="med-sub">'
-                            'No interaction with your other medicines in the FDA labels.'
-                            '</span></div>', unsafe_allow_html=True)
+    clear = [k for k in r["clear"] if k not in r["no_label"]]
+    if clear:
+        st.markdown('<div class="eyebrow">No interactions found</div>', unsafe_allow_html=True)
+        for k in clear:
+            st.markdown(f'<div class="ok"><b>{esc(k.title())}</b><br><span class="sub" '
+                        'style="color:inherit">No interaction with your other medicines in the FDA '
+                        'labels.</span></div>', unsafe_allow_html=True)
     if minor:
         with st.expander(f"{len(minor)} minor mention{'s' if len(minor) != 1 else ''} in labels"):
             for c in minor:
@@ -263,20 +292,133 @@ def results():
     missed = r["not_checked"] + [f"{n.title()} (no FDA interaction text found)" for n in r["no_label"]] \
         + [f"{n.title()} (data source unreachable)" for n in r["unavailable"]]
     if missed or ss.get("unreadable"):
-        st.markdown('<div class="section">NOT CHECKED</div>', unsafe_allow_html=True)
+        st.markdown('<div class="eyebrow">Not checked</div>', unsafe_allow_html=True)
         st.markdown('<div class="na"><b>These were not checked for interactions.</b> Ask your '
                     'pharmacist about them.<br>' + "<br>".join("• " + esc(m) for m in missed)
                     + (f"<br>• {ss.unreadable} unreadable label(s)" if ss.get("unreadable") else "")
                     + "</div>", unsafe_allow_html=True)
 
+    st.write("")
+    if ss.back == "confirm" and any(i["ingredients"] for i in r["items"]):
+        st.button("Save to my cabinet", icon=":material/add_circle:", type="primary",
+                  use_container_width=True, on_click=save_scanned)
     st.download_button("Share with my pharmacist", summary_text(r), "medscan_summary.txt",
-                       type="primary", use_container_width=True)
+                       use_container_width=True, icon=":material/ios_share:")
     if st.button("Scan again", use_container_width=True):
         ss.meds = []
         go("scan")
-    st.markdown('<div class="small">For information only. Not a substitute for advice from your '
+    st.markdown('<div class="fine">For information only. Not a substitute for advice from your '
                 'pharmacist or doctor. Findings are read from FDA drug labels and may be '
                 'incomplete.</div>', unsafe_allow_html=True)
 
 
-{"scan": scan, "confirm": confirm, "results": results}[ss.stage]()
+# ───────────────────────────── Cabinet ─────────────────────────────
+def _toggle_taken(med, t, key):
+    cabinet.set_taken(ss.cabinet, ss.today, med, t, bool(ss[key]))
+    cab_save()
+
+
+def _remove(med_id):
+    cabinet.remove(ss.cabinet, med_id)
+    cab_save()
+
+
+def _save_times(med, key):
+    good, bad = cabinet.parse_times(ss[key])
+    if bad:
+        st.toast("Couldn't read: " + ", ".join(bad) + ". Use times like 8am or 20:30.")
+        return
+    med["times"] = good
+    cab_save()
+    st.toast("Times saved.")
+
+
+def _add_med():
+    label = (ss.get("cab_name") or "").strip()
+    if not label:
+        return
+    good, bad = cabinet.parse_times(ss.get("cab_times") or "")
+    if bad:
+        st.toast("Couldn't read: " + ", ".join(bad) + ". Use times like 8am or 20:30.")
+        return
+    r = pipeline.resolve(label)
+    if r["status"] == "unavailable":
+        st.toast("Couldn't reach the drug-name service. Try again in a moment.")
+        return
+    status = cabinet.add(ss.cabinet, label, r["names"], good)
+    cab_save()
+    st.toast("Added to your cabinet." if status == "added" else "That medicine is already saved.")
+    ss.cab_name, ss.cab_times = "", ""
+
+
+def cabinet_screen():
+    nav()
+    cab = ss.cabinet
+    st.markdown('<div class="title">My cabinet</div><p class="lead">Your running list of '
+                'medicines. It is saved in this browser only. Nothing is sent to a server.</p>',
+                unsafe_allow_html=True)
+    if not cab["meds"]:
+        st.markdown('<div class="card note">Nothing saved yet. Scan your bottles and choose '
+                    '<b>Save to my cabinet</b>, or add a medicine below.</div>',
+                    unsafe_allow_html=True)
+
+    today = cabinet.due(cab)
+    if today:
+        done = sum(cabinet.is_taken(cab, ss.today, m, t) for m, t in today)
+        st.markdown(f'<div class="eyebrow">Today · {done} of {len(today)} taken</div>',
+                    unsafe_allow_html=True)
+        for m, t in today:
+            key = f"tk-{m['id']}-{t}-{ss.today}"
+            st.checkbox(f"{cabinet.nice_time(t)}  ·  {m['label']}", key=key,
+                        value=cabinet.is_taken(cab, ss.today, m, t),
+                        on_change=_toggle_taken, args=(m, t, key))
+
+    if cab["meds"]:
+        st.markdown('<div class="eyebrow">Medicines</div>', unsafe_allow_html=True)
+    for m in cab["meds"]:
+        chips = "".join(f'<span class="chip">{cabinet.nice_time(t)}</span>' for t in m["times"]) \
+            or '<span class="chip off">No reminder times</span>'
+        sub = f"Checked as {', '.join(m['ingredients'])}" if m["ingredients"] else "Not in our checked list"
+        st.markdown(f'<div class="card"><div class="med-name">{esc(m["label"])}</div>'
+                    f'<div class="sub">{esc(sub)}</div>{chips}</div>', unsafe_allow_html=True)
+        with st.expander("Edit times or remove"):
+            k = f"times-{m['id']}"
+            st.text_input("Daily dose times", key=k, placeholder="e.g. 8am, 8:30pm",
+                          value=", ".join(cabinet.nice_time(t).replace(" ", "").lower()
+                                          for t in m["times"]))
+            c1, c2 = st.columns(2)
+            c1.button("Save times", key=f"st-{m['id']}", use_container_width=True,
+                      on_click=_save_times, args=(m, k))
+            c2.button("Remove", key=f"rm-{m['id']}", use_container_width=True,
+                      on_click=_remove, args=(m["id"],))
+
+    st.markdown('<div class="eyebrow">Add a medicine</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.text_input("Medicine name and strength", key="cab_name",
+                      placeholder="e.g. Levothyroxine 50 mcg")
+        st.text_input("Daily dose times (optional)", key="cab_times", placeholder="e.g. 7am, 8pm")
+        st.button("Add to cabinet", icon=":material/add:", use_container_width=True,
+                  on_click=_add_med)
+
+    if cab["meds"]:
+        st.markdown('<div class="eyebrow">Tools</div>', unsafe_allow_html=True)
+        if st.button("Check my whole cabinet for interactions", type="primary",
+                     use_container_width=True, disabled=len(cab["meds"]) < 2):
+            with st.spinner("Checking FDA labels…"):
+                ss.result = pipeline.analyze([m["label"] for m in cab["meds"]])
+            ss.unreadable = 0
+            go("results", back="cabinet")
+        has_times = any(m["times"] for m in cab["meds"])
+        st.download_button("Add daily reminders to my calendar", cabinet.to_ics(cab, ss.today),
+                           "medscan_reminders.ics", "text/calendar", use_container_width=True,
+                           icon=":material/notifications:", disabled=not has_times)
+        st.markdown('<div class="fine">The reminder file repeats every day and works in Apple, '
+                    'Google and Outlook calendars, so your phone alerts you even when MedScan is '
+                    'closed. Open the file, or tap it after downloading, to add it.</div>',
+                    unsafe_allow_html=True)
+    st.markdown('<div class="fine">MedScan is a hackathon demo. Reminders help you remember; they '
+                'are not a substitute for your prescriber\'s directions.</div>',
+                unsafe_allow_html=True)
+
+
+{"scan": scan, "confirm": confirm, "results": results, "cabinet": cabinet_screen}[ss.stage]()

@@ -10,6 +10,8 @@ import re
 
 import requests
 
+from .check import NO_SPACING_HELP, SPACING, _sentences
+
 ACTION = {
     "high": "Keep taking your medicines as prescribed. Call your pharmacist or doctor "
             "today about this combination.",
@@ -47,9 +49,11 @@ def _spacing(pair: dict) -> dict | None:
     if not sp:
         return None
     if sp["kind"] == "helps":
+        # Quote only the sentence that talks about timing, not the whole passage.
+        line = next((s for s in _sentences(sp["quote"]) if SPACING.search(s)), sp["quote"])
+        line = line if len(line) <= 240 else line[:240].rsplit(" ", 1)[0] + " …"
         return dict(kind="helps", title="Spacing doses apart may help",
-                    text="Ask your pharmacist how far apart to take them. The label says: "
-                         f"“{sp['quote']}”")
+                    text=f"Ask your pharmacist how far apart to take them. The label says: “{line}”")
     return dict(kind="no_help", title="Spacing doses apart won't help",
                 text="Talk to your pharmacist before taking both. Do not stop a prescribed "
                      "medicine on your own.")
@@ -65,6 +69,7 @@ def card(pair: dict) -> dict:
         body=_body(pair), action=ACTION[pair["severity"]], never_stop=NEVER_STOP,
         escalation=("Get help right away for: " + "; or ".join(pair["topics"]) + "."
                     if pair["topics"] else DEFAULT_ESCALATION),
+        urgent=bool(pair["topics"]),  # specific warning symptoms get the red style
         spacing=_spacing(pair),
         evidence=[dict(quote=f["quote"], source=f["source"], kind=f["kind"]) for f in pair["findings"]],
     )
